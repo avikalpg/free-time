@@ -1,8 +1,11 @@
 {
   "name": "free-time",
   "version": "1.0.0",
+  "homepage": "https://myfreetimeinaweek.in",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
+    "deploy": "gh-pages -d web-build",
+    "predeploy": "expo build:web",
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
@@ -18,7 +21,8 @@
     "react-native-web": "0.17.7"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.9"
+    "@babel/core": "^7.12.9",
+    "gh-pages": "^4.0.0"
   },
   "private": true
 }

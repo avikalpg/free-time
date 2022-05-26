@@ -8,7 +8,7 @@ on:
   pull_request:
     types:
       - closed
-    branches: [ main ]
+    branches: [main]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -26,5 +26,21 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
-      - name: Build the static website and deploy it on gh-pages
-        run: yarn deploy
+
+      - name: Install dependencies
+        uses: Borales/actions-yarn@v2.3.0
+        with:
+          cmd: install # will run `yarn install` command
+
+      - name: Install expo cli and build static website
+        run: |
+          npm install -g expo-cli
+          expo build:web
+
+      - name: Deploy on gh-pages
+        uses: crazy-max/ghaction-github-pages@v2.6.0
+        with:
+          target_branch: gh-pages
+          build_dir: web-build
+        env:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
