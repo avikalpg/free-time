@@ -32,7 +32,15 @@ jobs:
         with:
           cmd: install # will run `yarn install` command
 
-      - name: Build the static website and deploy it on gh-pages
-        uses: Borales/actions-yarn@v2.3.0
+      - name: Install expo cli and build static website
+        run: |
+          npm install -g expo-cli
+          expo build:web
+
+      - name: Deploy on gh-pages
+        uses: crazy-max/ghaction-github-pages@v2.6.0
         with:
-          cmd: deploy # will run `yarn deploy` command
+          target_branch: gh-pages
+          build_dir: web-build
+        env:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
