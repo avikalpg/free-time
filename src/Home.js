@@ -78,7 +78,7 @@ class Home extends React.Component {
             {this.state.activities.map((activity, index) => (
                 <React.Fragment key={index}>
                     <TextInput value={activity.name} onChangeText={activityName => this.changeNameOfActivity(index, activityName)} />
-                    <TextInput value={activity.hours} onChangeText={hours => this.changeHoursOfActivity(index, hours)} />
+                    <TextInput value={activity.hours.toString()} onChangeText={hours => this.changeHoursOfActivity(index, hours)} />
                 </React.Fragment>
             ))}
 
