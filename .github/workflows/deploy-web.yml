@@ -33,8 +33,9 @@ jobs:
       - name: Install expo cli
         run: |
           npm install -g expo-cli
+          yarn deploy
 
-      - name: Build the static website and deploy it on gh-pages
-        uses: Borales/actions-yarn@v2.3.0
-        with:
-          cmd: deploy # will run `yarn deploy` command
+      # - name: Build the static website and deploy it on gh-pages
+      #   uses: Borales/actions-yarn@v2.3.0
+      #   with:
+      #     cmd: deploy # will run `yarn deploy` command
