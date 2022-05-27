@@ -2,6 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import { Helmet } from 'react-helmet';
 import Home from './src/Home';
+import PrivacyPolicy from './src/PrivacyPolicy';
 
 export default function App() {
   return (<>
@@ -14,6 +15,7 @@ export default function App() {
     <View style={styles.container}>
       <Text style={styles.titleText}>Free time in a Week</Text>
       <Home />
+      <PrivacyPolicy />
       <StatusBar style="auto" />
     </View>
   </>
