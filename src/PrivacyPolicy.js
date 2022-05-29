@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View } from 'react-native';
+import { ScrollView } from 'react-native';
 import Markdown from 'react-native-markdown-renderer';
 import { StatusBar } from 'expo-status-bar';
 import privacyPolicyFile from '../assets/privacy.md';
+import { Text } from 'react-native-paper';
 
 export default function PrivacyPolicy(props) {
     const [privacyPolicyText, setPrivacyPolicyText] = useState("placeholder text");
@@ -14,9 +15,12 @@ export default function PrivacyPolicy(props) {
     }, []);
 
     return (
-        <View>
-            <Markdown>{privacyPolicyText}</Markdown>
+        <ScrollView>
+            <Text>
+                <Markdown>{privacyPolicyText}</Markdown>
+            </Text>
+
             <StatusBar style='auto' />
-        </View>
+        </ScrollView>
     )
 }

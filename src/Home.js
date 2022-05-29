@@ -1,6 +1,7 @@
 import React from 'react';
-import { Text, TextInput, StyleSheet, View, Button } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { Paragraph, TextInput, Text, Button } from 'react-native-paper';
 
 class Home extends React.Component {
     constructor(props) {
@@ -70,11 +71,11 @@ class Home extends React.Component {
     render() {
         return (
             <View style={styles.container}>
-                <Text>Do you know, we have 168 hours in a week. Most full time jobs demand only 40-48 hours of work in a week.
+                <Paragraph>Do you know, we have 168 hours in a week. Most full time jobs demand only 40-48 hours of work in a week.
                     This means that we have almost 3-times as much time in our week as we devote to our full-time jobs.
                     How do you spend this time?
-                </Text>
-                <Text>The purpose of this website is gaining self-awareness about the amount of free time you have in your week</Text>
+                </Paragraph>
+                <Paragraph>The purpose of this website is gaining self-awareness about the amount of free time you have in your week</Paragraph>
 
                 {this.state.activities.map((activity, index) => (
                     <React.Fragment key={index}>
@@ -84,7 +85,7 @@ class Home extends React.Component {
                 ))}
 
                 <Text>{this.state.hoursRemaining} / {this.totalHoursInWeek}</Text>
-                <Button title='Privacy Policy' onPress={() => this.props.navigation.navigate('PrivacyPolicy')} />
+                <Button mode='text' onPress={() => this.props.navigation.navigate('PrivacyPolicy')} >Privacy Policy</Button>
                 <StatusBar style="auto" />
             </View>
         )

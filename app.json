@@ -3,7 +3,8 @@
     "name": "Free time in a week",
     "slug": "free-time",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "githubUrl": "https://github.com/avikalpg/free-time",
+    "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
