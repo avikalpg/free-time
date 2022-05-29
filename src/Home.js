@@ -1,5 +1,6 @@
 import React from 'react';
-import { Text, TextInput } from 'react-native';
+import { Text, TextInput, StyleSheet, View, Button } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 
 class Home extends React.Component {
     constructor(props) {
@@ -66,25 +67,42 @@ class Home extends React.Component {
 
         this.setState({ hoursRemaining: this.totalHoursInWeek - totalOccupiedHours })
     }
-
     render() {
-        return (<>
-            <Text>Do you know, we have 168 hours in a week. Most full time jobs demand only 40-48 hours of work in a week.
-                This means that we have almost 3-times as much time in our week as we devote to our full-time jobs.
-                How do you spend this time?
-            </Text>
-            <Text>The purpose of this website is gaining self-awareness about the amount of free time you have in your week</Text>
+        return (
+            <View style={styles.container}>
+                <Text style={styles.titleText}>Free time in a Week</Text>
 
-            {this.state.activities.map((activity, index) => (
-                <React.Fragment key={index}>
-                    <TextInput value={activity.name} onChangeText={activityName => this.changeNameOfActivity(index, activityName)} />
-                    <TextInput value={activity.hours.toString()} onChangeText={hours => this.changeHoursOfActivity(index, hours)} />
-                </React.Fragment>
-            ))}
+                <Text>Do you know, we have 168 hours in a week. Most full time jobs demand only 40-48 hours of work in a week.
+                    This means that we have almost 3-times as much time in our week as we devote to our full-time jobs.
+                    How do you spend this time?
+                </Text>
+                <Text>The purpose of this website is gaining self-awareness about the amount of free time you have in your week</Text>
 
-            <Text>{this.state.hoursRemaining} / {this.totalHoursInWeek}</Text>
-        </>)
+                {this.state.activities.map((activity, index) => (
+                    <React.Fragment key={index}>
+                        <TextInput value={activity.name} onChangeText={activityName => this.changeNameOfActivity(index, activityName)} />
+                        <TextInput value={activity.hours.toString()} onChangeText={hours => this.changeHoursOfActivity(index, hours)} />
+                    </React.Fragment>
+                ))}
+
+                <Text>{this.state.hoursRemaining} / {this.totalHoursInWeek}</Text>
+                <Button title='Privacy Policy' onPress={() => this.props.navigation.navigate('PrivacyPolicy')} />
+                <StatusBar style="auto" />
+            </View>
+        )
     }
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#ffffaa',
+    },
+    titleText: {
+        fontWeight: "bold",
+        fontSize: 30,
+        color: '#552'
+    }
+});
 
 export default Home;
