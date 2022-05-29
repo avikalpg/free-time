@@ -48,9 +48,11 @@ function Home(props) {
             </Paragraph>
             <Paragraph>The purpose of this website is gaining self-awareness about the amount of free time you have in your week</Paragraph>
 
-            <ActivityList activities={activities} setActivities={setActivities} />
+            <View style={styles.freeTimeWidget}>
+                <ActivityList activities={activities} setActivities={setActivities} />
 
-            <Text>{hoursRemaining} / {totalHoursInWeek}</Text>
+                <Text>{hoursRemaining} / {totalHoursInWeek}</Text>
+            </View>
             <Button mode='text' onPress={() => props.navigation.navigate('PrivacyPolicy')} >Privacy Policy</Button>
             <StatusBar style="auto" />
         </View>
@@ -62,6 +64,9 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
+    freeTimeWidget: {
+        flexDirection: 'row',
+    }
 });
 
 export default Home;

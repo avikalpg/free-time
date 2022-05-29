@@ -17,6 +17,7 @@ export const DefaultTheme = {
     ...CombinedDefaultTheme,
     colors: {
         ...CombinedDefaultTheme.colors,
+        surface: '#dfdfdf',
         primary: 'tomato',
         accent: 'yellow',
     }
