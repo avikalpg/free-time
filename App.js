@@ -17,7 +17,7 @@ export default function App() {
         crossorigin="anonymous"></script>
     </Helmet>
     <Stack.Navigator initialRouteName='Home'>
-      <Stack.Screen name='Home' component={Home} options={{ title: "Free time" }} />
+      <Stack.Screen name='Home' component={Home} options={{ title: "Free time in a Week" }} />
       <Stack.Screen name='PrivacyPolicy' component={PrivacyPolicy} options={{ title: "Privacy Policy" }} />
     </Stack.Navigator>
   </NavigationContainer>

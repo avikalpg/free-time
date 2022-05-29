@@ -5,6 +5,10 @@ import { StatusBar } from 'expo-status-bar';
 class Home extends React.Component {
     constructor(props) {
         super(props);
+        this.props.navigation.setOptions({
+            headerTitleStyle: styles.titleText,
+            headerStyle: styles.titleContainer
+        })
 
         this.totalHoursInWeek = 168;
 
@@ -70,8 +74,6 @@ class Home extends React.Component {
     render() {
         return (
             <View style={styles.container}>
-                <Text style={styles.titleText}>Free time in a Week</Text>
-
                 <Text>Do you know, we have 168 hours in a week. Most full time jobs demand only 40-48 hours of work in a week.
                     This means that we have almost 3-times as much time in our week as we devote to our full-time jobs.
                     How do you spend this time?
@@ -96,12 +98,15 @@ class Home extends React.Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#ffffaa',
+        backgroundColor: '#F2F2F2',
     },
     titleText: {
         fontWeight: "bold",
         fontSize: 30,
         color: '#552'
+    },
+    titleContainer: {
+        backgroundColor: '#FFFFFF'
     }
 });
 
