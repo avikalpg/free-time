@@ -5,10 +5,6 @@ import { StatusBar } from 'expo-status-bar';
 class Home extends React.Component {
     constructor(props) {
         super(props);
-        this.props.navigation.setOptions({
-            headerTitleStyle: styles.titleText,
-            headerStyle: styles.titleContainer
-        })
 
         this.totalHoursInWeek = 168;
 
@@ -98,16 +94,7 @@ class Home extends React.Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F2F2F2',
     },
-    titleText: {
-        fontWeight: "bold",
-        fontSize: 30,
-        color: '#552'
-    },
-    titleContainer: {
-        backgroundColor: '#FFFFFF'
-    }
 });
 
 export default Home;
