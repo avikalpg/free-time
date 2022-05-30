@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Button, TextInput, useTheme } from 'react-native-paper';
+import { Button, IconButton, TextInput, useTheme } from 'react-native-paper';
 import SelectDropdown from 'react-native-select-dropdown';
 import { ActivityPeriods } from './EnumActivityPeriod';
 
@@ -33,7 +33,7 @@ export const ActivityList = (props) => {
         activityHours: {
             flex: 2,
             marginHorizontal: '5px',
-            minWidth: '100px'
+            minWidth: '120px'
         },
         activityPeriodButton: {
             flex: 2,
@@ -69,6 +69,14 @@ export const ActivityList = (props) => {
             marginHorizontal: '2%',
             marginVertical: '5px'
         },
+        deleteActivityButton: {
+            margin: 0,
+            top: 0,
+            alignSelf: 'flex-start',
+            height: 'auto',
+            width: 'auto',
+            borderRadius: '8px'
+        },
     })
 
     const changeNameOfActivity = (activityIndex, activityNewName) => {
@@ -87,7 +95,8 @@ export const ActivityList = (props) => {
             activityNewHours = 0;
         }
         else {
-            activityNewHours = parseInt(activityNewHours)
+            activityNewHours = parseFloat(activityNewHours)
+            activityNewHours = Math.round(activityNewHours * 100) / 100
         }
         setActivities([
             ...activities.slice(0, activityIndex),
@@ -119,6 +128,12 @@ export const ActivityList = (props) => {
                 duration: ActivityPeriods.WEEK
             }
         ]);
+    }
+
+    const deleteActivity = (activityIndex) => {
+        setActivities([
+            ...activities.slice(0, activityIndex),
+            ...activities.slice(activityIndex + 1)]);
     }
 
     return (
@@ -153,6 +168,13 @@ export const ActivityList = (props) => {
                         dropdownStyle={styles.activityPeriodDropdown}
                         rowStyle={styles.activityPeriodRow}
                         rowTextStyle={styles.activityPeriodDropdownText}
+                    />
+                    <IconButton
+                        icon='close-circle'
+                        size={16}
+                        onPress={() => deleteActivity(index)}
+                        color={theme.colors.primary}
+                        style={styles.deleteActivityButton}
                     />
                 </View>
             ))}
