@@ -81,7 +81,7 @@ export const ActivityList = (props) => {
         activityPeriodDropdown: {
             backgroundColor: theme.colors.surface,
             height: 'auto',
-            minHeight: '10px'
+            maxHeight: '118px'
         },
         activityPeriodRow: {
             paddingVertical: '10px',

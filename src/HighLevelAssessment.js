@@ -1,5 +1,6 @@
 import React from "react";
-import { Text } from 'react-native-paper';
+import { StyleSheet, View } from "react-native";
+import { Caption, Headline } from 'react-native-paper';
 
 export function HighLevelAssessment(props) {
     const { activities } = props;
@@ -16,9 +17,28 @@ export function HighLevelAssessment(props) {
         setHoursRemaining(totalHoursInWeek - totalOccupiedHours)
     }
 
+    const getDisplayHours = (hours) => (
+        Math.round(10 * hours) / 10
+    )
+
     React.useEffect(() => {
         calculateRemainingTime();
     }, [activities])
 
-    return (<Text>{hoursRemaining} / {totalHoursInWeek}</Text>)
+    return (
+        <View style={styles.container}>
+            <Caption>You have</Caption>
+            <Headline>{getDisplayHours(hoursRemaining)} / {totalHoursInWeek}</Headline>
+            <Caption>free hours in your week</Caption>
+        </View>
+    )
 }
+
+const styles = StyleSheet.create({
+    container: {
+        width: '50%',
+        height: '100%',
+        alignItems: 'center',
+        justifyContent: 'center'
+    }
+})
