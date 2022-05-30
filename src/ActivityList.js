@@ -10,10 +10,6 @@ export const ActivityList = (props) => {
     // styles
     const theme = useTheme();
     const styles = StyleSheet.create({
-        container: {
-            flexDirection: 'column',
-            width: '50%'
-        },
         row: {
             flexDirection: 'row',
             width: '96%',
@@ -137,7 +133,7 @@ export const ActivityList = (props) => {
     }
 
     return (
-        <View style={styles.container}>
+        <View style={props.style}>
             {activities.map((activity, index) => (
                 <View style={styles.row} key={index}>
                     <TextInput
