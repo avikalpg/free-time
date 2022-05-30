@@ -15,6 +15,7 @@ export function Footer(props) {
             borderTopWidth: '1px',
             borderColor: theme.colors.disabled,
             color: theme.colors,
+            marginTop: '5em',
         },
         copyright: {
             height: 'auto',
