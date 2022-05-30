@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { TextInput, useTheme } from 'react-native-paper';
+import { Button, TextInput, useTheme } from 'react-native-paper';
 import SelectDropdown from 'react-native-select-dropdown';
 
 const ActivityPeriods = Object.freeze({
@@ -87,6 +87,13 @@ export const ActivityList = (props) => {
             paddingVertical: '10px',
             backgroundColor: theme.colors.background
         },
+        addActivityButton: {
+            width: '96%',
+            paddingHorizontal: '5px',
+            paddingVertical: '5px',
+            marginHorizontal: '2%',
+            marginVertical: '5px'
+        },
     })
 
     const changeNameOfActivity = (activityIndex, activityNewName) => {
@@ -141,6 +148,23 @@ export const ActivityList = (props) => {
             ...activities.slice(activityIndex + 1)]);
     }
 
+    const addActivity = () => {
+        setActivities([
+            ...activities,
+            {
+                name: '',
+                hours: 0
+            }
+        ]);
+        setTimeDetails([
+            ...timeDetails,
+            {
+                hours: 0,
+                duration: ActivityPeriods.WEEK
+            }
+        ]);
+    }
+
     return (
         <View style={styles.container}>
             {activities.map((activity, index) => (
@@ -176,6 +200,9 @@ export const ActivityList = (props) => {
                     />
                 </View>
             ))}
+            <Button icon='plus' mode='contained' style={styles.addActivityButton} onPress={addActivity}>
+                Add Activity
+            </Button>
         </View>
     )
 }
