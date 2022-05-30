@@ -13,7 +13,6 @@ export function HighLevelAssessment(props) {
         for (const activity of activities) {
             totalOccupiedHours += activity.hours
         }
-        console.log(totalOccupiedHours, totalHoursInWeek);
         setHoursRemaining(totalHoursInWeek - totalOccupiedHours)
     }
 

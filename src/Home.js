@@ -38,7 +38,6 @@ function Home(props) {
                 <ActivityList activities={activities} setActivities={setActivities} />
                 <HighLevelAssessment activities={activities} />
             </View>
-            <Button mode='text' onPress={() => props.navigation.navigate('PrivacyPolicy')} >Privacy Policy</Button>
             <StatusBar style="auto" />
         </View>
     )
