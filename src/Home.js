@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { Paragraph, Text, Button } from 'react-native-paper';
+import { Paragraph, Button } from 'react-native-paper';
 import { ActivityList } from './ActivityList';
+import { HighLevelAssessment } from './HighLevelAssessment';
 
 function Home(props) {
-
-    const totalHoursInWeek = 168;
-
-    const [hoursRemaining, setHoursRemaining] = useState(168);
     const [activities, setActivities] = useState([
         {
             name: "Full-time Job",
@@ -28,30 +25,18 @@ function Home(props) {
         },
     ]);
 
-    const calculateRemainingTime = () => {
-        let totalOccupiedHours = 0;
-        for (const activity of activities) {
-            totalOccupiedHours += activity.hours
-        }
-        setHoursRemaining(totalHoursInWeek - totalOccupiedHours)
-    }
-
-    React.useEffect(() => {
-        calculateRemainingTime();
-    }, [activities])
-
     return (
         <View style={styles.container}>
-            <Paragraph>Do you know, we have 168 hours in a week. Most full time jobs demand only 40-48 hours of work in a week.
-                This means that we have almost 3-times as much time in our week as we devote to our full-time jobs.
-                How do you spend this time?
-            </Paragraph>
-            <Paragraph>The purpose of this website is gaining self-awareness about the amount of free time you have in your week</Paragraph>
-
+            <View style={styles.description}>
+                <Paragraph>Do you know, we have 168 hours in a week. Most full time jobs demand only 40-48 hours of work in a week.
+                    This means that we have almost 3-times as much time in our week as we devote to our full-time jobs.
+                    How do you spend this time?
+                </Paragraph>
+                <Paragraph>The purpose of this website is gaining self-awareness about the amount of free time you have in your week</Paragraph>
+            </View>
             <View style={styles.freeTimeWidget}>
                 <ActivityList activities={activities} setActivities={setActivities} />
-
-                <Text>{hoursRemaining} / {totalHoursInWeek}</Text>
+                <HighLevelAssessment activities={activities} />
             </View>
             <Button mode='text' onPress={() => props.navigation.navigate('PrivacyPolicy')} >Privacy Policy</Button>
             <StatusBar style="auto" />
@@ -62,7 +47,14 @@ function Home(props) {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        maxWidth: '1200px',
+        alignSelf: 'center',
+    },
+    description: {
+        width: '80%',
+        alignSelf: 'center',
+        flexWrap: 'wrap',
+        padding: '2em'
     },
     freeTimeWidget: {
         flexDirection: 'row',
