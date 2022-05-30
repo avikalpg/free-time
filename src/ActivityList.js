@@ -2,36 +2,10 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Button, TextInput, useTheme } from 'react-native-paper';
 import SelectDropdown from 'react-native-select-dropdown';
-
-const ActivityPeriods = Object.freeze({
-    DAY: {
-        text: "per day",
-        mutliplier: 7,
-    },
-    WEEK: {
-        text: "per week",
-        mutliplier: 1,
-    },
-    MONTH: {
-        text: "per month",
-        mutliplier: 7 * 12 / 365,
-    },
-})
+import { ActivityPeriods } from './EnumActivityPeriod';
 
 export const ActivityList = (props) => {
     const { activities, setActivities } = props;
-
-    function getTimeDetailsFromActivities(activities) {
-        const timeDetails = [];
-        for (const activity of activities) {
-            timeDetails.push({
-                hours: activity.hours,
-                duration: ActivityPeriods.WEEK
-            })
-        }
-        return timeDetails;
-    }
-    const [timeDetails, setTimeDetails] = React.useState(getTimeDetailsFromActivities(activities));
 
     // styles
     const theme = useTheme();
@@ -50,7 +24,7 @@ export const ActivityList = (props) => {
             marginVertical: '5px',
             alignItems: 'flex-end',
             backgroundColor: theme.colors.surface,
-            borderRadius: theme.roundness
+            borderRadius: theme.roundness,
         },
         activityName: {
             flexGrow: 4,
@@ -69,7 +43,7 @@ export const ActivityList = (props) => {
             borderRadius: theme.roundness,
             borderColor: theme.colors.disabled,
             height: '90%',
-            minWidth: '108px'
+            minWidth: '128px'
         },
         activityPeriodDropdownText: {
             color: theme.colors.text,
@@ -81,7 +55,8 @@ export const ActivityList = (props) => {
         activityPeriodDropdown: {
             backgroundColor: theme.colors.surface,
             height: 'auto',
-            maxHeight: '118px'
+            maxHeight: '197px',
+            borderRadius: theme.roundness
         },
         activityPeriodRow: {
             paddingVertical: '10px',
@@ -101,7 +76,8 @@ export const ActivityList = (props) => {
             ...activities.slice(0, activityIndex),
             {
                 name: activityNewName,
-                hours: activities[activityIndex].hours
+                hours: activities[activityIndex].hours,
+                duration: activities[activityIndex].duration,
             },
             ...activities.slice(activityIndex + 1)]);
     }
@@ -113,37 +89,23 @@ export const ActivityList = (props) => {
         else {
             activityNewHours = parseInt(activityNewHours)
         }
-        setTimeDetails([
-            ...timeDetails.slice(0, activityIndex),
-            {
-                hours: activityNewHours,
-                duration: timeDetails[activityIndex].duration
-            },
-            ...timeDetails.slice(activityIndex + 1)]);
-        let activityNewHoursPerWeek = activityNewHours * timeDetails[activityIndex].duration.mutliplier;
         setActivities([
             ...activities.slice(0, activityIndex),
             {
                 name: activities[activityIndex].name,
-                hours: activityNewHoursPerWeek
+                hours: activityNewHours,
+                duration: activities[activityIndex].duration,
             },
             ...activities.slice(activityIndex + 1)]);
     }
 
     const changePeriodOfActivity = (activityIndex, activityNewPeriod) => {
-        setTimeDetails([
-            ...timeDetails.slice(0, activityIndex),
-            {
-                hours: timeDetails[activityIndex].hours,
-                duration: activityNewPeriod
-            },
-            ...timeDetails.slice(activityIndex + 1)]);
-        let activityNewHours = timeDetails[activityIndex].hours * activityNewPeriod.mutliplier;
         setActivities([
             ...activities.slice(0, activityIndex),
             {
                 name: activities[activityIndex].name,
-                hours: activityNewHours
+                hours: activities[activityIndex].hours,
+                duration: activityNewPeriod
             },
             ...activities.slice(activityIndex + 1)]);
     }
@@ -153,12 +115,6 @@ export const ActivityList = (props) => {
             ...activities,
             {
                 name: '',
-                hours: 0
-            }
-        ]);
-        setTimeDetails([
-            ...timeDetails,
-            {
                 hours: 0,
                 duration: ActivityPeriods.WEEK
             }
@@ -178,7 +134,7 @@ export const ActivityList = (props) => {
                     />
                     <TextInput
                         label={"Time"}
-                        value={timeDetails[index].hours.toString()}
+                        value={activity.hours.toString()}
                         onChangeText={timeVal => changeHoursOfActivity(index, timeVal)}
                         style={styles.activityHours}
                         right={<TextInput.Affix text='Hours' />}
@@ -191,7 +147,7 @@ export const ActivityList = (props) => {
                         }}
                         buttonTextAfterSelection={(selectedPeriod, unitIdx) => selectedPeriod.text}
                         rowTextForSelection={(selectedPeriod, unitIdx) => selectedPeriod.text}
-                        defaultValue={ActivityPeriods.WEEK}
+                        defaultValue={activity.duration}
                         buttonStyle={styles.activityPeriodButton}
                         buttonTextStyle={styles.activityPeriodDropdownText}
                         dropdownStyle={styles.activityPeriodDropdown}

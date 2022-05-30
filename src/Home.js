@@ -4,25 +4,35 @@ import { StatusBar } from 'expo-status-bar';
 import { Paragraph, Button } from 'react-native-paper';
 import { ActivityList } from './ActivityList';
 import { HighLevelAssessment } from './HighLevelAssessment';
+import { ActivityPeriods } from './EnumActivityPeriod';
 
 function Home(props) {
     const [activities, setActivities] = useState([
         {
             name: "Full-time Job",
             hours: 40,
+            duration: ActivityPeriods.WEEK,
         },
         {
             name: "Sleep",
-            hours: 56,
+            hours: 8,
+            duration: ActivityPeriods.DAY,
         },
         {
             name: "Chores",
-            hours: 14,
+            hours: 2,
+            duration: ActivityPeriods.DAY,
         },
         {
             name: "Leisure",
-            hours: 14
+            hours: 2,
+            duration: ActivityPeriods.WORK_DAY
         },
+        {
+            name: "Fun & Travel",
+            hours: 8,
+            duration: ActivityPeriods.WEEK_END
+        }
     ]);
 
     return (

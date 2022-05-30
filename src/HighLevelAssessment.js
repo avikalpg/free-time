@@ -11,7 +11,7 @@ export function HighLevelAssessment(props) {
     const calculateRemainingTime = () => {
         let totalOccupiedHours = 0;
         for (const activity of activities) {
-            totalOccupiedHours += activity.hours
+            totalOccupiedHours += activity.hours * activity.duration.multiplier
         }
         setHoursRemaining(totalHoursInWeek - totalOccupiedHours)
     }
