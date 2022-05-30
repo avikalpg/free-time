@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, View } from "react-native";
+import { View } from "react-native";
 import { Caption, Headline } from 'react-native-paper';
 
 export function HighLevelAssessment(props) {
@@ -25,19 +25,10 @@ export function HighLevelAssessment(props) {
     }, [activities])
 
     return (
-        <View style={styles.container}>
+        <View style={props.style}>
             <Caption>You have</Caption>
             <Headline>{getDisplayHours(hoursRemaining)} / {totalHoursInWeek}</Headline>
             <Caption>free hours in your week</Caption>
         </View>
     )
 }
-
-const styles = StyleSheet.create({
-    container: {
-        width: '50%',
-        height: '100%',
-        alignItems: 'center',
-        justifyContent: 'center'
-    }
-})

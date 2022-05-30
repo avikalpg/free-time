@@ -10,10 +10,6 @@ export const ActivityList = (props) => {
     // styles
     const theme = useTheme();
     const styles = StyleSheet.create({
-        container: {
-            flexDirection: 'column',
-            width: '50%'
-        },
         row: {
             flexDirection: 'row',
             width: '96%',
@@ -22,28 +18,36 @@ export const ActivityList = (props) => {
             paddingBottom: '10px',
             marginHorizontal: '2%',
             marginVertical: '5px',
-            alignItems: 'flex-end',
             backgroundColor: theme.colors.surface,
             borderRadius: theme.roundness,
+            flexWrap: 'wrap'
         },
         activityName: {
-            flexGrow: 4,
+            flexGrow: 1,
             marginHorizontal: '5px'
         },
+        activityDetails: {
+            flex: 1,
+            flexDirection: 'row',
+            flexWrap: 'nowrap',
+            height: 'auto',
+            alignItems: 'flex-end',
+            minWidth: 256,
+        },
         activityHours: {
-            flex: 2,
+            flex: 1,
+            minWidth: 108,
             marginHorizontal: '5px',
-            minWidth: '120px'
         },
         activityPeriodButton: {
-            flex: 2,
+            flex: 1,
+            minWidth: 128,
+            height: '90%',
             marginHorizontal: '5px',
             backgroundColor: theme.colors.background,
             borderWidth: '1px',
             borderRadius: theme.roundness,
             borderColor: theme.colors.disabled,
-            height: '90%',
-            minWidth: '128px'
         },
         activityPeriodDropdownText: {
             color: theme.colors.text,
@@ -70,12 +74,14 @@ export const ActivityList = (props) => {
             marginVertical: '5px'
         },
         deleteActivityButton: {
+            position: 'absolute',
             margin: 0,
-            top: 0,
+            top: -8,
+            right: -8,
             alignSelf: 'flex-start',
             height: 'auto',
             width: 'auto',
-            borderRadius: '8px'
+            borderRadius: 8
         },
     })
 
@@ -137,7 +143,7 @@ export const ActivityList = (props) => {
     }
 
     return (
-        <View style={styles.container}>
+        <View style={props.style}>
             {activities.map((activity, index) => (
                 <View style={styles.row} key={index}>
                     <TextInput
@@ -146,29 +152,33 @@ export const ActivityList = (props) => {
                         onChangeText={activityName => changeNameOfActivity(index, activityName)}
                         style={styles.activityName}
                         mode="outlined"
+                        dense
                     />
-                    <TextInput
-                        label={"Time"}
-                        value={activity.hours.toString()}
-                        onChangeText={timeVal => changeHoursOfActivity(index, timeVal)}
-                        style={styles.activityHours}
-                        right={<TextInput.Affix text='Hours' />}
-                        mode="outlined"
-                    />
-                    <SelectDropdown
-                        data={Object.values(ActivityPeriods)}
-                        onSelect={(selectedPeriod, unitIdx) => {
-                            changePeriodOfActivity(index, selectedPeriod)
-                        }}
-                        buttonTextAfterSelection={(selectedPeriod, unitIdx) => selectedPeriod.text}
-                        rowTextForSelection={(selectedPeriod, unitIdx) => selectedPeriod.text}
-                        defaultValue={activity.duration}
-                        buttonStyle={styles.activityPeriodButton}
-                        buttonTextStyle={styles.activityPeriodDropdownText}
-                        dropdownStyle={styles.activityPeriodDropdown}
-                        rowStyle={styles.activityPeriodRow}
-                        rowTextStyle={styles.activityPeriodDropdownText}
-                    />
+                    <View style={styles.activityDetails}>
+                        <TextInput
+                            label={"Time"}
+                            value={activity.hours.toString()}
+                            onChangeText={timeVal => changeHoursOfActivity(index, timeVal)}
+                            style={styles.activityHours}
+                            right={<TextInput.Affix text='Hours' />}
+                            mode="outlined"
+                            dense
+                        />
+                        <SelectDropdown
+                            data={Object.values(ActivityPeriods)}
+                            onSelect={(selectedPeriod, unitIdx) => {
+                                changePeriodOfActivity(index, selectedPeriod)
+                            }}
+                            buttonTextAfterSelection={(selectedPeriod, unitIdx) => selectedPeriod.text}
+                            rowTextForSelection={(selectedPeriod, unitIdx) => selectedPeriod.text}
+                            defaultValue={activity.duration}
+                            buttonStyle={styles.activityPeriodButton}
+                            buttonTextStyle={styles.activityPeriodDropdownText}
+                            dropdownStyle={styles.activityPeriodDropdown}
+                            rowStyle={styles.activityPeriodRow}
+                            rowTextStyle={styles.activityPeriodDropdownText}
+                        />
+                    </View>
                     <IconButton
                         icon='close-circle'
                         size={16}
