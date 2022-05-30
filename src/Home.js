@@ -1,107 +1,76 @@
-import React from 'react';
-import { Text, TextInput, StyleSheet, View, Button } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, View, ScrollView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { Paragraph } from 'react-native-paper';
+import { ActivityList } from './ActivityList';
+import { HighLevelAssessment } from './HighLevelAssessment';
+import { ActivityPeriods } from './EnumActivityPeriod';
+import { Footer } from './Footer';
 
-class Home extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.totalHoursInWeek = 168;
-
-        this.state = {
-            hoursRemaining: 168,
-            activities: [
-                {
-                    name: "Full-time Job",
-                    hours: 40,
-                },
-                {
-                    name: "Sleep",
-                    hours: 56,
-                },
-                {
-                    name: "Chores",
-                    hours: 14,
-                },
-                {
-                    name: "Leisure",
-                    hours: 14
-                },
-            ]
+function Home(props) {
+    const [activities, setActivities] = useState([
+        {
+            name: "Full-time Job",
+            hours: 40,
+            duration: ActivityPeriods.WEEK,
+        },
+        {
+            name: "Sleep",
+            hours: 8,
+            duration: ActivityPeriods.DAY,
+        },
+        {
+            name: "Chores",
+            hours: 2,
+            duration: ActivityPeriods.DAY,
+        },
+        {
+            name: "Leisure",
+            hours: 2,
+            duration: ActivityPeriods.WORK_DAY
+        },
+        {
+            name: "Fun & Travel",
+            hours: 8,
+            duration: ActivityPeriods.WEEK_END
         }
-    }
+    ]);
 
-    componentDidMount = () => {
-        this.calculateRemainingTime();
-    }
-
-    changeNameOfActivity = (activityIndex, activityNewName) => {
-        const activities = this.state.activities;
-        activities[activityIndex].name = activityNewName;
-        this.setState({ activities: activities });
-
-        this.calculateRemainingTime();
-    }
-
-    changeHoursOfActivity = (activityIndex, activityNewHours) => {
-        if (activityNewHours == "") {
-            activityNewHours = 0;
-        }
-        else {
-            activityNewHours = parseInt(activityNewHours)
-        }
-        const activities = this.state.activities;
-        activities[activityIndex].hours = activityNewHours;
-        this.setState({ activities: activities });
-
-        this.calculateRemainingTime();
-    }
-
-    calculateRemainingTime = () => {
-        let totalOccupiedHours = 0;
-        for (const activity of this.state.activities) {
-            totalOccupiedHours += activity.hours
-        }
-
-        console.log(this.totalHoursInWeek, totalOccupiedHours, this.totalHoursInWeek - totalOccupiedHours)
-
-        this.setState({ hoursRemaining: this.totalHoursInWeek - totalOccupiedHours })
-    }
-    render() {
-        return (
+    return (
+        <ScrollView >
             <View style={styles.container}>
-                <Text style={styles.titleText}>Free time in a Week</Text>
-
-                <Text>Do you know, we have 168 hours in a week. Most full time jobs demand only 40-48 hours of work in a week.
-                    This means that we have almost 3-times as much time in our week as we devote to our full-time jobs.
-                    How do you spend this time?
-                </Text>
-                <Text>The purpose of this website is gaining self-awareness about the amount of free time you have in your week</Text>
-
-                {this.state.activities.map((activity, index) => (
-                    <React.Fragment key={index}>
-                        <TextInput value={activity.name} onChangeText={activityName => this.changeNameOfActivity(index, activityName)} />
-                        <TextInput value={activity.hours.toString()} onChangeText={hours => this.changeHoursOfActivity(index, hours)} />
-                    </React.Fragment>
-                ))}
-
-                <Text>{this.state.hoursRemaining} / {this.totalHoursInWeek}</Text>
-                <Button title='Privacy Policy' onPress={() => this.props.navigation.navigate('PrivacyPolicy')} />
-                <StatusBar style="auto" />
+                <View style={styles.description}>
+                    <Paragraph>Do you know, we have 168 hours in a week. Most full time jobs demand only 40-48 hours of work in a week.
+                        This means that we have almost 3-times as much time in our week as we devote to our full-time jobs.
+                        How do you spend this time?
+                    </Paragraph>
+                    <Paragraph>The purpose of this website is gaining self-awareness about the amount of free time you have in your week</Paragraph>
+                </View>
+                <View style={styles.freeTimeWidget}>
+                    <ActivityList activities={activities} setActivities={setActivities} />
+                    <HighLevelAssessment activities={activities} />
+                </View>
             </View>
-        )
-    }
+            <Footer />
+            <StatusBar style="auto" />
+        </ScrollView>
+    )
+
 }
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        backgroundColor: '#ffffaa',
+        maxWidth: '1200px',
+        alignSelf: 'center',
     },
-    titleText: {
-        fontWeight: "bold",
-        fontSize: 30,
-        color: '#552'
+    description: {
+        width: '80%',
+        alignSelf: 'center',
+        flexWrap: 'wrap',
+        padding: '2em'
+    },
+    freeTimeWidget: {
+        flexDirection: 'row',
     }
 });
 
