@@ -37,11 +37,11 @@ function Home(props) {
             duration: ActivityPeriods.WEEK_END
         }
     ]);
-    const styles = merge(styles, useStylesheet(staticStyle))
+    const styles = merge(commonStyles, useStylesheet(responsiveStyles))
 
     return (
-        <ScrollView>
-            <View style={styles.container}>
+        <ScrollView style={styles.container}>
+            <View style={styles.content}>
                 <View style={styles.description}>
                     <Paragraph>Do you know, we have 168 hours in a week. Most full time jobs demand only 40-48 hours of work in a week.
                         This means that we have almost 3-times as much time in our week as we devote to our full-time jobs.
@@ -61,9 +61,9 @@ function Home(props) {
 
 }
 
-const staticStyle = [
+const responsiveStyles = [
     {
-        query: { minWidth: 1080 },
+        query: { minWidth: 900 },
         style: {
             freeTimeWidget: {
                 flexDirection: 'row',
@@ -81,10 +81,12 @@ const staticStyle = [
         }
     },
     {
-        query: { maxWidth: 1080 },
+        query: { maxWidth: 900 },
         style: {
             freeTimeWidget: {
                 flexDirection: 'column',
+                width: '96%',
+                alignSelf: 'center',
             },
             activityListStyle: {
                 flexDirection: 'column',
@@ -100,16 +102,21 @@ const staticStyle = [
     },
 ]
 
-const styles = StyleSheet.create({
+const commonStyles = StyleSheet.create({
     container: {
+        flex: 1,
+    },
+    content: {
+        flex: 1,
         maxWidth: 1250,
         alignSelf: 'center',
+        width: '100%',
     },
     description: {
         width: '80%',
         alignSelf: 'center',
         flexWrap: 'wrap',
-        padding: '2em'
+        paddingVertical: '2em'
     },
 });
 
