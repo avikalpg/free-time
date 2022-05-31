@@ -8,6 +8,7 @@ import { ActivityList } from './ActivityList';
 import { HighLevelAssessment } from './HighLevelAssessment';
 import { ActivityPeriods } from './EnumActivityPeriod';
 import { Footer } from './Footer';
+import { randomColor } from './utils';
 
 function Home(props) {
     const [activities, setActivities] = useState([
@@ -15,26 +16,31 @@ function Home(props) {
             name: "Full-time Job",
             hours: 40,
             duration: ActivityPeriods.WEEK,
+            color: randomColor(),
         },
         {
             name: "Sleep",
             hours: 8,
             duration: ActivityPeriods.DAY,
+            color: randomColor(),
         },
         {
             name: "Chores",
             hours: 2,
             duration: ActivityPeriods.DAY,
+            color: randomColor(),
         },
         {
             name: "Leisure",
             hours: 2,
-            duration: ActivityPeriods.WORK_DAY
+            duration: ActivityPeriods.WORK_DAY,
+            color: randomColor(),
         },
         {
             name: "Fun & Travel",
             hours: 8,
-            duration: ActivityPeriods.WEEK_END
+            duration: ActivityPeriods.WEEK_END,
+            color: randomColor(),
         }
     ]);
     const styles = merge(commonStyles, useStylesheet(responsiveStyles))
