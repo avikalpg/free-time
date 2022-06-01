@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import Markdown from 'react-native-markdown-renderer';
 import { StatusBar } from 'expo-status-bar';
+import ReactGA from 'react-ga';
+
 import privacyPolicyFile from '../assets/privacy.md';
 import { Text } from 'react-native-paper';
 import { Footer } from './Footer';
 
 export default function PrivacyPolicy(props) {
+    ReactGA.pageview('/PrivacyPolicy');
     const [privacyPolicyText, setPrivacyPolicyText] = useState("placeholder text");
     const styles = StyleSheet.create({
         privacyPolicyContents: {

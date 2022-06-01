@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Button, IconButton, TextInput, useTheme } from 'react-native-paper';
 import SelectDropdown from 'react-native-select-dropdown';
+import ReactGA from 'react-ga';
 import { ActivityPeriods } from './EnumActivityPeriod';
 
 export const ActivityList = (props) => {
@@ -86,6 +87,15 @@ export const ActivityList = (props) => {
     })
 
     const changeNameOfActivity = (activityIndex, activityNewName) => {
+        ReactGA.event({
+            category: "ActivityList",
+            action: "Changed Name",
+            value: activityIndex,
+            dimension1: activityNewName,
+            dimension2: activities[activityIndex].duration.text,
+            metric1: activities[activityIndex].hours,
+            metric2: activities[activityIndex].duration.multiplier,
+        });
         setActivities([
             ...activities.slice(0, activityIndex),
             {
@@ -97,6 +107,15 @@ export const ActivityList = (props) => {
     }
 
     const changeHoursOfActivity = (activityIndex, activityNewHours) => {
+        ReactGA.event({
+            category: "ActivityList",
+            action: "Changed Hours",
+            value: activityIndex,
+            dimension1: activities[activityIndex].name,
+            dimension2: activities[activityIndex].duration.text,
+            metric1: activityNewHours,
+            metric2: activities[activityIndex].duration.multiplier,
+        });
         if (activityNewHours == "") {
             activityNewHours = 0;
         }
@@ -115,6 +134,15 @@ export const ActivityList = (props) => {
     }
 
     const changePeriodOfActivity = (activityIndex, activityNewPeriod) => {
+        ReactGA.event({
+            category: "ActivityList",
+            action: "Changed Duration",
+            value: activityIndex,
+            dimension1: activities[activityIndex].name,
+            dimension2: activityNewPeriod.text,
+            metric1: activities[activityIndex].hours,
+            metric2: activityNewPeriod.multiplier,
+        });
         setActivities([
             ...activities.slice(0, activityIndex),
             {
@@ -126,6 +154,11 @@ export const ActivityList = (props) => {
     }
 
     const addActivity = () => {
+        ReactGA.event({
+            category: "ActivityList",
+            action: "Added Activity",
+            value: activities.length,
+        });
         setActivities([
             ...activities,
             {
@@ -137,6 +170,15 @@ export const ActivityList = (props) => {
     }
 
     const deleteActivity = (activityIndex) => {
+        ReactGA.event({
+            category: "ActivityList",
+            action: "Deleted Activity",
+            value: activityIndex,
+            dimension1: activities[activityIndex].name,
+            dimension2: activities[activityIndex].duration.text,
+            metric1: activities[activityIndex].hours,
+            metric2: activities[activityIndex].duration.multiplier,
+        });
         setActivities([
             ...activities.slice(0, activityIndex),
             ...activities.slice(activityIndex + 1)]);
