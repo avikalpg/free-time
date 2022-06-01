@@ -4,16 +4,17 @@ import { Helmet } from 'react-helmet';
 import { NavigationContainer, } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Provider as PaperProvider } from 'react-native-paper';
+import ReactGA from 'react-ga';
 
 import { Header } from './src/Header';
 import Home from './src/Home';
 import PrivacyPolicy from './src/PrivacyPolicy';
 import { DefaultTheme, DarkTheme } from './src/Theme';
-import { Footer } from './src/Footer';
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+	ReactGA.initialize("G-S9YE72LCW4");
 	const [isThemeDark, setIsThemeDark] = React.useState(false);
 	let theme = isThemeDark ? DarkTheme : DefaultTheme;
 	const toggleTheme = React.useCallback(() => {
