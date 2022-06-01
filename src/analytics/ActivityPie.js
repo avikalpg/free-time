@@ -52,10 +52,13 @@ export function ActivityPie(props) {
                 <PieChart
                     style={{ height: 200 }}
                     data={data}
-                    sort={(a, b) => (a.key === "free-time") ? -1 : b.value - a.value}
+                    sort={(a, b) => (b.key === "free-time") ? 1
+                        : (a.key === "free-time") ? -1
+                            : b.value - a.value
+                    }
                 >
                 </PieChart>
             </ErrorBoundary>
-        </View>
+        </View >
     )
 }
