@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Paragraph } from 'react-native-paper';
 import { useStylesheet } from 'react-native-responsive-ui';
 import merge from 'deepmerge';
+import ReactGA from 'react-ga';
 import { ActivityList } from './ActivityList';
 import { HighLevelAssessment } from './HighLevelAssessment';
 import { ActivityPeriods } from './EnumActivityPeriod';
@@ -11,6 +12,7 @@ import { Footer } from './Footer';
 import { randomColor } from './utils';
 
 function Home(props) {
+    ReactGA.pageview('/Home');
     const [activities, setActivities] = useState([
         {
             name: "Full-time Job",
