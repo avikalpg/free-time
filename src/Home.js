@@ -4,14 +4,14 @@ import { StatusBar } from 'expo-status-bar';
 import { Paragraph } from 'react-native-paper';
 import { useStylesheet } from 'react-native-responsive-ui';
 import merge from 'deepmerge';
-import ReactGA from 'react-ga';
+import ReactGA from 'react-ga4';
 import { ActivityList } from './ActivityList';
 import { HighLevelAssessment } from './HighLevelAssessment';
 import { ActivityPeriods } from './EnumActivityPeriod';
 import { Footer } from './Footer';
 
 function Home(props) {
-    ReactGA.pageview('/Home');
+    ReactGA.send("pageview")
     const [activities, setActivities] = useState([
         {
             name: "Full-time Job",
