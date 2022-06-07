@@ -2,7 +2,7 @@ import { useNavigation } from "@react-navigation/native";
 import React from "react";
 import { View, StyleSheet } from "react-native";
 import { Button, Text, useTheme } from "react-native-paper";
-import LinkToURL from './components/Link';
+import { openURL } from './utils/UrlUtility';
 
 export function Footer(props) {
     const navigation = useNavigation();
@@ -29,9 +29,9 @@ export function Footer(props) {
         return (
             <Text style={styles.copyright}>
                 {'© '}
-                <LinkToURL url="https://github.com/avikalpg" >
+                <Text onPress={openURL("https://github.com/avikalpg")} >
                     Avikalp Gupta
-                </LinkToURL >{' '}
+                </Text >{' '}
                 {new Date().getFullYear()}
             </Text>
         );
@@ -40,16 +40,15 @@ export function Footer(props) {
     return (
         <View style={styles.footer}>
             <Copyright />
-            <LinkToURL url="https://github.com/avikalpg/free-time" >
-                <Button
-                    mode="text"
-                    icon="github"
-                    color={theme.colors.text}
-                    uppercase={false}
-                    compact>
-                    Contribute
-                </Button>
-            </LinkToURL>
+            <Button
+                mode="text"
+                icon="github"
+                onPress={openURL("https://github.com/avikalpg/free-time")}
+                color={theme.colors.text}
+                uppercase={false}
+                compact>
+                Contribute
+            </Button>
             <Button
                 mode='text'
                 onPress={() => navigation.navigate('PrivacyPolicy')}
