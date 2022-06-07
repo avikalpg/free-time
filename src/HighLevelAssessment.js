@@ -27,16 +27,30 @@ export function HighLevelAssessment(props) {
 
     return (
         <View style={props.style}>
-            <Caption>You have</Caption>
-            <Headline>{getDisplayHours(hoursRemaining)} / {totalHoursInWeek}</Headline>
-            <Caption>free hours in your week</Caption>
-            <ActivityPie activities={activities} totalHoursInWeek={totalHoursInWeek} style={styles.activityPie} />
+            <View style={styles.totalFreeHoursText}>
+                <Caption>You have</Caption>
+                <Headline>{getDisplayHours(hoursRemaining)} / {totalHoursInWeek}</Headline>
+                <Caption style={{ textAlign: 'center' }}>free hours in<br />your week</Caption>
+            </View>
+            <ActivityPie activities={activities} totalHoursInWeek={totalHoursInWeek} style={styles.activityPie} >
+            </ActivityPie>
         </View>
     )
 }
 
 const styles = StyleSheet.create({
+    totalFreeHoursText: {
+        position: 'absolute',
+        width: '50%',
+        height: 'auto',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
     activityPie: {
-        width: '50%'
+        position: 'absolute',
+        width: '90%',
+        height: '90%',
+        alignItems: 'center',
+        justifyContent: 'center',
     }
 })

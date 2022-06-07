@@ -1,6 +1,6 @@
 import React from "react";
 import { PieChart } from "react-native-svg-charts";
-import { View } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { useTheme } from "react-native-paper";
 import ErrorBoundary from "../components/ErrorBoundary";
 
@@ -36,7 +36,7 @@ export function ActivityPie(props) {
                 strokeWidth: 2,
                 onPress: () => console.log('press', 'free-time'),
             },
-            arc: { outerRadius: '100%', cornerRadius: 10, }
+            arc: { outerRadius: '100%', innerRadius: '40%', cornerRadius: 10, }
         })
         console.log(pieData);
         return pieData
@@ -44,21 +44,32 @@ export function ActivityPie(props) {
 
     React.useEffect(() => {
         setData(constructDataFromActivities(activities));
-    }, [activities])
+    }, [activities, theme])
 
     return (
         <View style={props.style}>
-            <ErrorBoundary>
+            <ErrorBoundary >
                 <PieChart
-                    style={{ height: 200 }}
+                    style={styles.pieChart}
                     data={data}
                     sort={(a, b) => (b.key === "free-time") ? 1
                         : (a.key === "free-time") ? -1
                             : b.value - a.value
                     }
                 >
+                    {props.children}
                 </PieChart>
             </ErrorBoundary>
         </View >
     )
 }
+
+const styles = StyleSheet.create({
+    pieChart: {
+        alignSelf: 'center',
+        maxWidth: '100%',
+        maxHeight: '100%',
+        aspectRatio: 1,
+        width: '100%',
+    }
+})

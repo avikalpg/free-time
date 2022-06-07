@@ -78,13 +78,14 @@ const responsiveStyles = [
             },
             activityListStyle: {
                 flexDirection: 'column',
-                width: '50%'
+                width: '50%',
             },
             highLevelAssessmentStyle: {
                 width: '50%',
                 height: '100%',
                 alignItems: 'center',
-                justifyContent: 'center'
+                justifyContent: 'center',
+                minHeight: '300px',
             },
         }
     },
@@ -98,13 +99,14 @@ const responsiveStyles = [
             },
             activityListStyle: {
                 flexDirection: 'column',
-                width: '100%'
+                width: '100%',
             },
             highLevelAssessmentStyle: {
                 width: '100%',
                 height: 'auto',
                 alignItems: 'center',
-                justifyContent: 'center'
+                justifyContent: 'center',
+                minHeight: '300px',
             },
         }
     },
