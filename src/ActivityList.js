@@ -4,6 +4,7 @@ import { Button, IconButton, TextInput, useTheme } from 'react-native-paper';
 import SelectDropdown from 'react-native-select-dropdown';
 import ReactGA from 'react-ga4';
 import { ActivityPeriods } from './EnumActivityPeriod';
+import { randomColor } from './utils/utils';
 
 export const ActivityList = (props) => {
     const { activities, setActivities } = props;
@@ -99,9 +100,8 @@ export const ActivityList = (props) => {
         setActivities([
             ...activities.slice(0, activityIndex),
             {
+                ...activities[activityIndex],
                 name: activityNewName,
-                hours: activities[activityIndex].hours,
-                duration: activities[activityIndex].duration,
             },
             ...activities.slice(activityIndex + 1)]);
     }
@@ -126,9 +126,8 @@ export const ActivityList = (props) => {
         setActivities([
             ...activities.slice(0, activityIndex),
             {
-                name: activities[activityIndex].name,
+                ...activities[activityIndex],
                 hours: activityNewHours,
-                duration: activities[activityIndex].duration,
             },
             ...activities.slice(activityIndex + 1)]);
     }
@@ -146,8 +145,7 @@ export const ActivityList = (props) => {
         setActivities([
             ...activities.slice(0, activityIndex),
             {
-                name: activities[activityIndex].name,
-                hours: activities[activityIndex].hours,
+                ...activities[activityIndex],
                 duration: activityNewPeriod
             },
             ...activities.slice(activityIndex + 1)]);
@@ -164,7 +162,8 @@ export const ActivityList = (props) => {
             {
                 name: '',
                 hours: 0,
-                duration: ActivityPeriods.WEEK
+                duration: ActivityPeriods.WEEK,
+                color: randomColor(),
             }
         ]);
     }
