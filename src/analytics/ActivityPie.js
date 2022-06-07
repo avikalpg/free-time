@@ -38,7 +38,6 @@ export function ActivityPie(props) {
             },
             arc: { outerRadius: '100%', innerRadius: '40%', cornerRadius: 10, }
         })
-        console.log(pieData);
         return pieData
     }
 
