@@ -9,7 +9,7 @@ import { ActivityList } from './ActivityList';
 import { HighLevelAssessment } from './HighLevelAssessment';
 import { ActivityPeriods } from './EnumActivityPeriod';
 import { Footer } from './Footer';
-import { randomColor } from './utils';
+import { randomColor } from './utils/utils';
 
 function Home(props) {
     ReactGA.send("pageview")

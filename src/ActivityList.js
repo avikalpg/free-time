@@ -4,7 +4,7 @@ import { Button, IconButton, TextInput, useTheme } from 'react-native-paper';
 import SelectDropdown from 'react-native-select-dropdown';
 import ReactGA from 'react-ga4';
 import { ActivityPeriods } from './EnumActivityPeriod';
-import { randomColor } from './utils';
+import { randomColor } from './utils/utils';
 
 export const ActivityList = (props) => {
     const { activities, setActivities } = props;
