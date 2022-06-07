@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Button, IconButton, TextInput, useTheme } from 'react-native-paper';
 import SelectDropdown from 'react-native-select-dropdown';
-import ReactGA from 'react-ga';
+import ReactGA from 'react-ga4';
 import { ActivityPeriods } from './EnumActivityPeriod';
 
 export const ActivityList = (props) => {
