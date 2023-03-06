@@ -45,10 +45,10 @@ function Home(props) {
             color: randomColor(),
         }
     ]);
-    const styles = merge(commonStyles, useStylesheet(responsiveStyles))
+    const styles = merge(commonStyles, useStylesheet(responsiveStyles));
 
     return (
-        <ScrollView style={styles.container}>
+        <ScrollView style={styles.container} contentContainerStyle={{ minHeight: '100%' }}>
             <View style={styles.content}>
                 <View style={styles.description}>
                     <Paragraph>Do you know, we have 168 hours in a week. Most full time jobs demand only 40-48 hours of work in a week.
@@ -118,6 +118,7 @@ const commonStyles = StyleSheet.create({
     },
     content: {
         flex: 1,
+        flexGrow: 1,
         maxWidth: 1250,
         alignSelf: 'center',
         width: '100%',
