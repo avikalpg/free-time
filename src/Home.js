@@ -48,7 +48,7 @@ function Home(props) {
     const styles = merge(commonStyles, useStylesheet(responsiveStyles));
 
     return (
-        <ScrollView style={styles.container} contentContainerStyle={{minHeight:'100%'}}>
+        <ScrollView style={styles.container} contentContainerStyle={{ minHeight: '100%' }}>
             <View style={styles.content}>
                 <View style={styles.description}>
                     <Paragraph>Do you know, we have 168 hours in a week. Most full time jobs demand only 40-48 hours of work in a week.
@@ -114,13 +114,11 @@ const responsiveStyles = [
 
 const commonStyles = StyleSheet.create({
     container: {
-        display:'flex',
-        minHeight: '100%',
         flex: 1,
     },
     content: {
         flex: 1,
-        flexGrow : 1,
+        flexGrow: 1,
         maxWidth: 1250,
         alignSelf: 'center',
         width: '100%',
