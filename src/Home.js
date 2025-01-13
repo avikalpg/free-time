@@ -38,12 +38,6 @@ function Home(props) {
             duration: ActivityPeriods.WORK_DAY,
             color: randomColor(),
         },
-        {
-            name: "Fun & Travel",
-            hours: 8,
-            duration: ActivityPeriods.WEEK_END,
-            color: randomColor(),
-        }
     ]);
     const styles = merge(commonStyles, useStylesheet(responsiveStyles));
 
