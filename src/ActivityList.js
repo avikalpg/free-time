@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import { Button, IconButton, TextInput, useTheme } from 'react-native-paper';
 import SelectDropdown from 'react-native-select-dropdown';
 import ReactGA from 'react-ga4';
@@ -85,6 +85,13 @@ export const ActivityList = (props) => {
             width: 'auto',
             borderRadius: 8
         },
+        errorText: {
+            color: theme.colors.error,
+            fontSize: 12,
+            position: 'absolute',
+            bottom: -5,
+            left: 10,
+        },
     })
 
     const changeNameOfActivity = (activityIndex, activityNewName) => {
@@ -116,13 +123,7 @@ export const ActivityList = (props) => {
             metric1: activityNewHours,
             metric2: activities[activityIndex].duration.multiplier,
         });
-        if (activityNewHours == "") {
-            activityNewHours = 0;
-        }
-        else {
-            activityNewHours = parseFloat(activityNewHours)
-            activityNewHours = Math.round(activityNewHours * 100) / 100
-        }
+
         setActivities([
             ...activities.slice(0, activityIndex),
             {
@@ -130,6 +131,27 @@ export const ActivityList = (props) => {
                 hours: activityNewHours,
             },
             ...activities.slice(activityIndex + 1)]);
+    }
+
+    /**
+     * Evaluates whether an activity has valid hours & period of activity
+     * @param {{name: string, hours: number, duration: {text: string, multiplier: number}, color: string, errorText: null}} activity
+     * @returns {{valid: boolean, reason: string}}
+     */
+    const validateHours = (activity) => {
+        // Check if the input is a valid number
+        if (isNaN(activity.hours)) {
+            return { valid: false, reason: "Invalid input. Please enter a number." };
+        }
+        // Check if the input is within a reasonable range
+        const hoursPerWeek = activity.hours * activity.duration.multiplier;
+        if (hoursPerWeek < 0) {
+            return { valid: false, reason: "Hours cannot be negative." };
+        }
+        if (hoursPerWeek > 168) {
+            return { valid: false, reason: "Hours exceed 168 hours per week." };
+        }
+        return { valid: true, reason: "" };
     }
 
     const changePeriodOfActivity = (activityIndex, activityNewPeriod) => {
@@ -203,6 +225,7 @@ export const ActivityList = (props) => {
                             style={styles.activityHours}
                             right={<TextInput.Affix text='Hours' />}
                             mode="outlined"
+                            error={!validateHours(activity).valid}
                             dense
                         />
                         <SelectDropdown
@@ -227,6 +250,9 @@ export const ActivityList = (props) => {
                         color={theme.colors.primary}
                         style={styles.deleteActivityButton}
                     />
+                    <Text style={styles.errorText}>
+                        {validateHours(activity).valid ? '' : validateHours(activity).reason}
+                    </Text>
                 </View>
             ))}
             <Button icon='plus' mode='contained' style={styles.addActivityButton} onPress={addActivity}>
