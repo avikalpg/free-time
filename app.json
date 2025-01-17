@@ -2,15 +2,15 @@
   "expo": {
     "name": "Free time in a week",
     "slug": "free-time",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "githubUrl": "https://github.com/avikalpg/free-time",
     "orientation": "default",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/FreeTimeLogo.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#7de8ab"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -24,11 +24,11 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FFFFFF"
+        "backgroundColor": "#7DE8AB"
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/FreeTimeLogo.png"
     }
   }
 }

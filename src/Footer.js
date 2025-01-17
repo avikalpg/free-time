@@ -11,7 +11,7 @@ export function Footer(props) {
     const styles = StyleSheet.create(({
         footer: {
             flexDirection: 'row',
-            backgroundColor: theme.colors.surface,
+            backgroundColor: theme.colors.accent,
             borderTopWidth: '1px',
             borderColor: theme.colors.disabled,
             color: theme.colors,

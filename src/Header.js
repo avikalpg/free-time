@@ -11,7 +11,7 @@ export const Header = ({ navigation, route, options, back }) => {
         <Appbar.Header
             theme={{
                 colors: {
-                    primary: theme?.colors.surface,
+                    primary: theme?.colors.accent,
                 },
             }}
         >
