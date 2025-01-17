@@ -14,7 +14,7 @@ import { TimeUtilizationSuggestions } from './TimeUtilizationSuggestions';
 
 function Home(props) {
     ReactGA.send("pageview")
-    const [activities, setActivities] = useState([
+    const [activities, setActivitiesState] = useState([
         {
             name: "Full-time Job",
             hours: 40,
@@ -41,6 +41,17 @@ function Home(props) {
         },
     ]);
     const styles = merge(commonStyles, useStylesheet(responsiveStyles));
+
+    const setActivities = (activities) => {
+        setActivitiesState(activities);
+        localStorage.setItem("activities", JSON.stringify(activities));
+    }
+
+    React.useEffect(() => {
+        const storedActivities = localStorage.getItem("activities");
+        console.log(`storedActivities: ${JSON.stringify(storedActivities)}`)
+        if (storedActivities && storedActivities !== "null") setActivitiesState(JSON.parse(storedActivities));
+    }, [])
 
     return (
         <ScrollView style={styles.container} contentContainerStyle={{ minHeight: '100%' }}>
