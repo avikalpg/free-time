@@ -2,29 +2,16 @@ import React from "react";
 import { View, StyleSheet } from "react-native";
 import { Caption, Headline } from 'react-native-paper';
 import { ActivityPie } from "./analytics/ActivityPie";
-import { validateHours } from "./utils/utils";
+import { calculateRemainingTime, getDisplayHours, totalHoursInWeek, validateHours } from "./utils/utils";
 
 export function HighLevelAssessment(props) {
     const { activities } = props;
     const validActivities = activities.filter((activity) => validateHours(activity).valid)
 
-    const totalHoursInWeek = 168;
-
     const [hoursRemaining, setHoursRemaining] = React.useState(168);
-    const calculateRemainingTime = () => {
-        let totalOccupiedHours = 0;
-        for (const activity of validActivities) {
-            totalOccupiedHours += activity.hours * activity.duration.multiplier
-        }
-        setHoursRemaining(totalHoursInWeek - totalOccupiedHours)
-    }
-
-    const getDisplayHours = (hours) => (
-        Math.round(10 * hours) / 10
-    )
 
     React.useEffect(() => {
-        calculateRemainingTime();
+        setHoursRemaining(calculateRemainingTime(validActivities));
     }, [validActivities])
 
     return (

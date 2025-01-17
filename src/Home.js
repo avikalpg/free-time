@@ -10,10 +10,11 @@ import { HighLevelAssessment } from './HighLevelAssessment';
 import { ActivityPeriods } from './EnumActivityPeriod';
 import { Footer } from './Footer';
 import { randomColor } from './utils/utils';
+import { TimeUtilizationSuggestions } from './TimeUtilizationSuggestions';
 
 function Home(props) {
     ReactGA.send("pageview")
-    const [activities, setActivities] = useState([
+    const [activities, setActivitiesState] = useState([
         {
             name: "Full-time Job",
             hours: 40,
@@ -41,11 +42,22 @@ function Home(props) {
     ]);
     const styles = merge(commonStyles, useStylesheet(responsiveStyles));
 
+    const setActivities = (activities) => {
+        setActivitiesState(activities);
+        localStorage.setItem("activities", JSON.stringify(activities));
+    }
+
+    React.useEffect(() => {
+        const storedActivities = localStorage.getItem("activities");
+        console.log(`storedActivities: ${JSON.stringify(storedActivities)}`)
+        if (storedActivities && storedActivities !== "null") setActivitiesState(JSON.parse(storedActivities));
+    }, [])
+
     return (
         <ScrollView style={styles.container} contentContainerStyle={{ minHeight: '100%' }}>
             <View style={styles.content}>
                 <View style={styles.description}>
-                    <Paragraph>Do you know, we have 168 hours in a week. Most full time jobs demand only 40-48 hours of work in a week.
+                    <Paragraph>Do you know, we have 168 hours in a week? Most full time jobs demand only 40-48 hours of work in a week.
                         This means that we have almost 3-times as much time in our week as we devote to our full-time jobs.
                         How do you spend this time?
                     </Paragraph>
@@ -54,6 +66,9 @@ function Home(props) {
                 <View style={styles.freeTimeWidget}>
                     <ActivityList activities={activities} setActivities={setActivities} style={styles.activityListStyle} />
                     <HighLevelAssessment activities={activities} style={styles.highLevelAssessmentStyle} />
+                </View>
+                <View>
+                    <TimeUtilizationSuggestions activities={activities} style={styles.description} />
                 </View>
             </View>
             <Footer />
