@@ -57,7 +57,7 @@ function Home(props) {
         <ScrollView style={styles.container} contentContainerStyle={{ minHeight: '100%' }}>
             <View style={styles.content}>
                 <View style={styles.description}>
-                    <Paragraph>Do you know, we have 168 hours in a week. Most full time jobs demand only 40-48 hours of work in a week.
+                    <Paragraph>Do you know, we have 168 hours in a week? Most full time jobs demand only 40-48 hours of work in a week.
                         This means that we have almost 3-times as much time in our week as we devote to our full-time jobs.
                         How do you spend this time?
                     </Paragraph>

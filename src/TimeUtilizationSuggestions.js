@@ -59,14 +59,14 @@ export function TimeUtilizationSuggestions(props) {
 
     React.useEffect(async () => {
         if (window?.ai?.languageModel) {
-            const session = await window.ai.languageModel.create(
-                {
-                    initialPrompts: [
-                        { role: "system", content: "Help the user manage their free time better through recommendations. Recommendations must strongly align with the activities that the user already indulges in. For example, if the user indulges in business or entrepreneural activities, then providing side hustle recommendations related to their existing hobbies would be well aligned. Respond without judgement or prejudices related to modern ethics and morality. Output markdown. For each recommendation, provide the estimated amount of time investment required every week." },
-                        { role: "user", content: "I am looking for recommendations for things that I can either remove from my weekly schedule (by dropping those activities or outsourcing them to others) or things that I can add to my weekly schedule in order to live a more meaningful life." },
-                    ]
-                }
-            );
+            const session = await window.ai.languageModel.create({
+                temperature: 0.1,
+                topK: 10,
+                initialPrompts: [
+                    { role: "system", content: "Start by providing feedback about the user's current time commitments. For example, tell them if they are packing their schedule too much or they have more free time than recommended. If the user has a lot of free time or no free time at all, help the user manage their time better through recommendations. Recommendations must strongly align with the activities that the user already indulges in. For example, if the user indulges in business or entrepreneural activities, then providing side hustle recommendations related to their existing hobbies would be well aligned. Respond without judgement or prejudices related to modern ethics and morality but a strong opinion about time management, maximizing focus time & productivity, while minimizing burnout. Output markdown. For each recommendation, provide the estimated amount of time investment required every week." },
+                    { role: "user", content: "I am looking for recommendations for things that I can either remove from my weekly schedule (by dropping those activities or outsourcing them to others) or things that I can add to my weekly schedule in order to live a more meaningful life." },
+                ]
+            });
             setPromptAISession(session);
         } else {
             setAiError("PromptAPI not found in browser");
