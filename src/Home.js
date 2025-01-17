@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { Paragraph } from 'react-native-paper';
+import { Paragraph, useTheme } from 'react-native-paper';
 import { useStylesheet } from 'react-native-responsive-ui';
 import merge from 'deepmerge';
 import ReactGA from 'react-ga4';
@@ -40,6 +40,25 @@ function Home(props) {
             color: randomColor(),
         },
     ]);
+
+    const commonStyles = StyleSheet.create({
+        container: {
+            flex: 1,
+        },
+        content: {
+            flex: 1,
+            flexGrow: 1,
+            maxWidth: 1250,
+            alignSelf: 'center',
+            width: '100%',
+        },
+        description: {
+            width: '80%',
+            alignSelf: 'center',
+            flexWrap: 'wrap',
+            paddingVertical: '2em'
+        },
+    });
     const styles = merge(commonStyles, useStylesheet(responsiveStyles));
 
     const setActivities = (activities) => {
@@ -120,24 +139,5 @@ const responsiveStyles = [
         }
     },
 ]
-
-const commonStyles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    content: {
-        flex: 1,
-        flexGrow: 1,
-        maxWidth: 1250,
-        alignSelf: 'center',
-        width: '100%',
-    },
-    description: {
-        width: '80%',
-        alignSelf: 'center',
-        flexWrap: 'wrap',
-        paddingVertical: '2em'
-    },
-});
 
 export default Home;
