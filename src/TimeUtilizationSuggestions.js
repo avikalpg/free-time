@@ -1,41 +1,62 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
-import { Caption, Headline, Text, Title } from 'react-native-paper';
-import { calculateRemainingTime, getDisplayHours, totalHoursInWeek, validateHours } from "./utils/utils";
+import { StyleSheet, View } from "react-native";
+import Markdown from "react-native-markdown-renderer";
+import { Button, Text } from 'react-native-paper';
+import { calculateRemainingTime, getDisplayHours, validateHours } from "./utils/utils";
 
 export function TimeUtilizationSuggestions(props) {
     const { activities } = props;
     const validActivities = activities.filter((activity) => validateHours(activity).valid)
 
+    const [promptAISession, setPromptAISession] = React.useState(null);
     const [hoursRemaining, setHoursRemaining] = React.useState(168);
     const [aiSuggestion, setAiSuggestion] = React.useState("");
+    const [loadingSuggestions, setLoadingSuggestions] = React.useState(false);
 
-    const generateAISuggestion = async () => {
-        if (!window?.ai?.languageModel) return;
+    const generateAISuggestion = async (promptAISession, hoursRemaining) => {
+        if (!promptAISession) {
+            console.warn("[TimeUtilizationSuggestions] No promptAI session")
+            return;
+        }
 
         try {
-            const prompt = `Given ${getDisplayHours(hoursRemaining)} free hours in a week, suggest some meaningful activities or pursuits. The suggestion should be personal, motivating and specific. Keep it under 2 sentences.`;
+            setLoadingSuggestions(true);
+            const prompt = `Given ${getDisplayHours(hoursRemaining)} free hours in a week, suggest some meaningful activities
+             or pursuits. The suggestion should be personal, motivating and specific. Here is the list of activities that
+             I indulge in during the week: ${validActivities.map(activity => activity.name).join(",")}. Generate the output as markdown.`;
+            console.log(`prompt: ${prompt}`)
+            const stream = await promptAISession.promptStreaming(prompt);
 
-            const response = await window.ai.generateText({
-                messages: [{ role: "user", content: prompt }]
-            });
-
-            setAiSuggestion(response);
+            const reader = stream.getReader();
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) {
+                    setLoadingSuggestions(false);
+                    break; // Exit the loop when the stream is finished
+                }
+                setAiSuggestion(value)
+            }
         } catch (error) {
             console.error("Error generating AI suggestion:", error);
-            setAiSuggestion("");
         }
-    }
+    };
+
+    React.useEffect(async () => {
+        if (window?.ai?.languageModel) {
+            const session = await window.ai.languageModel.create();
+            setPromptAISession(session);
+        }
+    }, [])
 
     React.useEffect(() => {
         setHoursRemaining(calculateRemainingTime(validActivities));
     }, [validActivities])
 
-    React.useEffect(() => {
+    const provideRecommendation = () => {
         if (window?.ai?.languageModel) {
-            generateAISuggestion();
+            generateAISuggestion(promptAISession, hoursRemaining);
         }
-    }, [hoursRemaining]);
+    };
 
     const getDefaultSuggestion = () => {
         if (hoursRemaining > 40) return "You can take up another full time job";
@@ -46,12 +67,14 @@ export function TimeUtilizationSuggestions(props) {
 
     return (
         <View style={props.style}>
-            <Title>Recommendation</Title>
+            <Button mode="outlined" onPress={provideRecommendation} disabled={loadingSuggestions} loading={loadingSuggestions}>Generate recommendations</Button>
             <Text style={styles.suggestionText}>
-                {(window?.ai?.languageModel && aiSuggestion) ?
-                    aiSuggestion :
-                    getDefaultSuggestion()
-                }
+                <Markdown>
+                    {(window?.ai?.languageModel && aiSuggestion) ?
+                        aiSuggestion :
+                        getDefaultSuggestion()
+                    }
+                </Markdown>
             </Text>
         </View>
     )
@@ -59,10 +82,9 @@ export function TimeUtilizationSuggestions(props) {
 
 const styles = StyleSheet.create({
     suggestionText: {
-        position: 'absolute',
-        bottom: 0,
-        textAlign: 'center',
+        textAlign: 'left',
         paddingHorizontal: 20,
-        paddingBottom: 10
+        paddingBottom: 10,
+        paddingTop: 20
     }
 })
