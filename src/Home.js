@@ -10,6 +10,7 @@ import { HighLevelAssessment } from './HighLevelAssessment';
 import { ActivityPeriods } from './EnumActivityPeriod';
 import { Footer } from './Footer';
 import { randomColor } from './utils/utils';
+import { TimeUtilizationSuggestions } from './TimeUtilizationSuggestions';
 
 function Home(props) {
     ReactGA.send("pageview")
@@ -54,6 +55,9 @@ function Home(props) {
                 <View style={styles.freeTimeWidget}>
                     <ActivityList activities={activities} setActivities={setActivities} style={styles.activityListStyle} />
                     <HighLevelAssessment activities={activities} style={styles.highLevelAssessmentStyle} />
+                </View>
+                <View>
+                    <TimeUtilizationSuggestions activities={activities} style={styles.description} />
                 </View>
             </View>
             <Footer />
