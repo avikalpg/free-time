@@ -2,16 +2,18 @@ import React from "react";
 import { View, StyleSheet } from "react-native";
 import { Caption, Headline } from 'react-native-paper';
 import { ActivityPie } from "./analytics/ActivityPie";
+import { validateHours } from "./utils/utils";
 
 export function HighLevelAssessment(props) {
     const { activities } = props;
+    const validActivities = activities.filter((activity) => validateHours(activity).valid)
 
     const totalHoursInWeek = 168;
 
     const [hoursRemaining, setHoursRemaining] = React.useState(168);
     const calculateRemainingTime = () => {
         let totalOccupiedHours = 0;
-        for (const activity of activities) {
+        for (const activity of validActivities) {
             totalOccupiedHours += activity.hours * activity.duration.multiplier
         }
         setHoursRemaining(totalHoursInWeek - totalOccupiedHours)
@@ -23,7 +25,7 @@ export function HighLevelAssessment(props) {
 
     React.useEffect(() => {
         calculateRemainingTime();
-    }, [activities])
+    }, [validActivities])
 
     return (
         <View style={props.style}>
@@ -32,7 +34,7 @@ export function HighLevelAssessment(props) {
                 <Headline>{getDisplayHours(hoursRemaining)} / {totalHoursInWeek}</Headline>
                 <Caption style={{ textAlign: 'center' }}>free hours in<br />your week</Caption>
             </View>
-            <ActivityPie activities={activities} totalHoursInWeek={totalHoursInWeek} style={styles.activityPie} >
+            <ActivityPie activities={validActivities} totalHoursInWeek={totalHoursInWeek} style={styles.activityPie} >
             </ActivityPie>
         </View>
     )
