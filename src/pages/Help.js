@@ -1,15 +1,18 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import merge from 'deepmerge';
+import { View, ScrollView, TouchableOpacity, Linking } from 'react-native';
+import { Text } from 'react-native-paper';
 import { useState } from 'react';
 import EnablePromptAPI from './help/EnablePromptAPI';
 import { useTheme } from 'react-native-paper';
+import { useStylesheet } from 'react-native-responsive-ui';
 
 const HelpSupport = () => {
 	const [activeTab, setActiveTab] = useState('enablePromptAPI');
 
 	const theme = useTheme();
 	// Styles
-	const styles = {
+	const commonStyles = {
 		title: {
 			fontSize: 24,
 			fontWeight: 'bold',
@@ -24,7 +27,6 @@ const HelpSupport = () => {
 			minHeight: '75vh',
 		},
 		tabContainer: {
-			width: '30%', // Adjust width as needed
 			padding: 10,
 			backgroundColor: theme.colors.surface,
 			borderRadius: 10,
@@ -44,8 +46,8 @@ const HelpSupport = () => {
 			marginRight: 10,
 		},
 		contentArea: {
-			width: '70%', // Adjust width as needed
 			padding: 20,
+			color: theme.colors.text,
 		},
 		step: {
 			fontSize: 16,
@@ -68,11 +70,41 @@ const HelpSupport = () => {
 		},
 		contact: {
 			marginTop: 20,
-			fontSize: 16,
+			fontSize: 12,
 			textAlign: 'center',
 			color: theme.colors.text,
 		},
 	};
+
+	const responsiveStyles = [
+		{
+			query: { minWidth: 760 },
+			style: {
+				tabContainer: {
+					width: 300,
+				},
+				contentArea: {
+					maxWidth: '100%'
+				},
+			},
+		},
+		{
+			query: { maxWidth: 760 },
+			style: {
+				container: {
+					flexDirection: 'col',
+				},
+				tabContainer: {
+					width: '100%',
+				},
+				contentArea: {
+					width: '100%',
+				},
+			},
+		},
+	];
+
+	const styles = merge(commonStyles, useStylesheet(responsiveStyles));
 
 	return (
 		<View >
@@ -107,7 +139,7 @@ const HelpSupport = () => {
 					)}
 				</ScrollView>
 			</View>
-			<Text style={styles.contact}>Contact Support: [Provide contact information]</Text>
+			<Text style={styles.contact}>For any support or issues, please visit our <Text style={{ textDecoration: "underline", textDecorationColor: theme.colors.accent }} onPress={() => Linking.openURL('https://github.com/avikalpg/free-time')}>GitHub repository</Text> and raise an issue or start a discussion.</Text>
 		</View>
 	);
 };
