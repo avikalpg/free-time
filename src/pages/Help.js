@@ -52,8 +52,7 @@ const HelpSupport = () => {
 		step: {
 			fontSize: 16,
 			marginVertical: 5,
-			padding: 10,
-			backgroundColor: theme.colors.surface,
+			padding: 5,
 			borderRadius: 5,
 		},
 		question: {
@@ -63,9 +62,8 @@ const HelpSupport = () => {
 		},
 		answer: {
 			fontSize: 16,
-			marginBottom: 15,
-			padding: 10,
-			backgroundColor: theme.colors.surface,
+			marginBottom: 5,
+			padding: 5,
 			borderRadius: 5,
 		},
 		contact: {
@@ -128,13 +126,22 @@ const HelpSupport = () => {
 					{activeTab === 'freeTimeCalculator' && (
 						<View>
 							<Text style={styles.question}>How to use the free time calculator?</Text>
-							<Text style={styles.answer}>[Provide a brief answer or link to a detailed guide.]</Text>
+							<Text style={styles.answer}>To get started, think about all the activities that take up your time, such as your job, commute, family responsibilities, rest and recovery, leisure activities, hobbies, and any other regular commitments. For each activity, you'll need to fill in three fields:</Text>
+							<Text style={styles.step}>1. Activity: Give a brief name to the activity, e.g. "Full-time job" or "Daily commute"</Text>
+							<Text style={styles.step}>2. Time: Enter the number of hours you spend on this activity, e.g. 40 hours per week or 1 hour per day</Text>
+							<Text style={styles.step}>3. Frequency: Choose how often you do this activity from the dropdown options, e.g. "per day", "per week", "per month", etc.</Text>
+							<Text style={styles.answer}>For example, if you work 40 hours a week, you would fill in "Full-time job" as the activity, "40" as the time, and "per week" as the frequency. Don't forget to include daily chores and other unavoidable activities in your list!</Text>
+							<Text style={styles.answer}>Once you've added all your activities, you'll see a pie-chart showing how your weekly time is distributed, as well as the number of hours of free time you have available. You can then use this information to make informed decisions about how to use your time more effectively.</Text>
 						</View>
 					)}
 					{activeTab === 'bestPractices' && (
 						<View>
 							<Text style={styles.question}>Best practices for getting suggestions for free time.</Text>
-							<Text style={styles.answer}>[Provide a brief answer or link to a detailed guide.]</Text>
+							<Text style={styles.answer}>To get the most out of the free time suggestions, make sure to add all your activities, including both essential and non-essential ones. Be as detailed as possible when describing each activity, as this will help the AI generate more relevant suggestions.</Text>
+							<Text style={styles.step}>1. Be honest about how you spend your time: Include all your activities, even if they seem insignificant or unimportant.</Text>
+							<Text style={styles.step}>2. Be specific: Use clear and concise language when describing each activity.</Text>
+							<Text style={styles.step}>3. Think about your goals: Consider what you want to achieve with your free time, and how you can use it to live a more fulfilling life.</Text>
+							<Text style={styles.answer}>By following these best practices, you'll get personalized suggestions for saving time in non-essential activities and finding new ways to utilize your free time.</Text>
 						</View>
 					)}
 				</ScrollView>

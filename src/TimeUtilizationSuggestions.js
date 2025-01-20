@@ -25,7 +25,7 @@ export function TimeUtilizationSuggestions(props) {
         buttonHelperText: {
             textAlign: 'center',
             paddingTop: '5px',
-            color: theme.colors.backdrop,
+            color: theme.colors.disabled,
         }
     })
 
@@ -60,7 +60,7 @@ export function TimeUtilizationSuggestions(props) {
     React.useEffect(async () => {
         if (window?.ai?.languageModel) {
             const session = await window.ai.languageModel.create({
-                temperature: 0.1,
+                temperature: 0.8,
                 topK: 10,
                 initialPrompts: [
                     { role: "system", content: "Start by providing feedback about the user's current time commitments. For example, tell them if they are packing their schedule too much or they have more free time than recommended. If the user has a lot of free time or no free time at all, help the user manage their time better through recommendations. Recommendations must strongly align with the activities that the user already indulges in. For example, if the user indulges in business or entrepreneural activities, then providing side hustle recommendations related to their existing hobbies would be well aligned. Respond without judgement or prejudices related to modern ethics and morality but a strong opinion about time management, maximizing focus time & productivity, while minimizing burnout. Output markdown. For each recommendation, provide the estimated amount of time investment required every week." },
@@ -69,7 +69,7 @@ export function TimeUtilizationSuggestions(props) {
             });
             setPromptAISession(session);
         } else {
-            setAiError("PromptAPI not found in browser");
+            setAiError("PromptAPI not found in browser. Don't worry, visit the help section for setting it up.");
         }
     }, [])
 
