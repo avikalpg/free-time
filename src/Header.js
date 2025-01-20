@@ -17,6 +17,7 @@ export const Header = ({ navigation, route, options, back }) => {
         >
             {back ? <Appbar.BackAction onPress={navigation.goBack} /> : null}
             <Appbar.Content title={getHeaderTitle(options, route.name)} />
+            <Appbar.Action icon="help-circle" onPress={() => navigation.navigate('Help')} />
             <TouchableRipple onPress={() => toggleTheme()}>
                 <Switch
                     color={theme.colors.primary}
