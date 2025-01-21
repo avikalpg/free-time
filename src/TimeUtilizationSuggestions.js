@@ -25,7 +25,7 @@ export function TimeUtilizationSuggestions(props) {
         buttonHelperText: {
             textAlign: 'center',
             paddingTop: '5px',
-            color: theme.colors.backdrop,
+            color: theme.colors.disabled,
         }
     })
 
@@ -38,7 +38,7 @@ export function TimeUtilizationSuggestions(props) {
         try {
             setLoadingSuggestions(true);
             setAiError("");
-            const prompt = `Given ${getDisplayHours(hoursRemaining)} free hours in a week, suggest some meaningful activities or pursuits. The suggestion should be personal, motivating and specific. Here is the list of activities that the user indulges in during the week: ${validActivities.map(activity => `${activity.name} for ${activity.hours * activity.duration.multiplier} hours across the week`).join(",")}.`;
+            const prompt = `Given ${getDisplayHours(hoursRemaining)} free hours in a week, suggest some meaningful activities or pursuits. The suggestion should be personal, motivating and specific. Here is the list of activities that the user indulges in during the week: ${validActivities.map(activity => `${activity.name} for ${activity.hours} hours ${activity.duration.text}`).join(",")}.`;
             const stream = await promptAISession.promptStreaming(prompt);
 
             const reader = stream.getReader();
@@ -58,19 +58,36 @@ export function TimeUtilizationSuggestions(props) {
     };
 
     React.useEffect(async () => {
-        if (window?.ai?.languageModel) {
-            const session = await window.ai.languageModel.create({
-                temperature: 0.1,
-                topK: 10,
-                initialPrompts: [
-                    { role: "system", content: "Start by providing feedback about the user's current time commitments. For example, tell them if they are packing their schedule too much or they have more free time than recommended. If the user has a lot of free time or no free time at all, help the user manage their time better through recommendations. Recommendations must strongly align with the activities that the user already indulges in. For example, if the user indulges in business or entrepreneural activities, then providing side hustle recommendations related to their existing hobbies would be well aligned. Respond without judgement or prejudices related to modern ethics and morality but a strong opinion about time management, maximizing focus time & productivity, while minimizing burnout. Output markdown. For each recommendation, provide the estimated amount of time investment required every week." },
-                    { role: "user", content: "I am looking for recommendations for things that I can either remove from my weekly schedule (by dropping those activities or outsourcing them to others) or things that I can add to my weekly schedule in order to live a more meaningful life." },
-                ]
-            });
-            setPromptAISession(session);
-        } else {
-            setAiError("PromptAPI not found in browser");
+        if (!window?.ai?.languageModel) {
+            setAiError("PromptAPI not found in browser. Don't worry, visit the help section for setting it up.");
+            return;
         }
+        const cap = await window.ai.languageModel.capabilities();
+        if (cap.available !== 'readily') {
+            setAiError("Language model in your PromptAPI is not readily available.");
+            if (cap.available === 'after-download') {
+                setAiError("Sit tight, we need to do some downloading...");
+                const session = await window.ai.languageModel.create({
+                    monitor(m) {
+                        m.addEventListener("downloadprogress", (e) => {
+                            const progress = `Downloaded ${e.loaded} of ${e.total} bytes.`;
+                            console.log(progress);
+                            setAiError(`Sit tight, we need to do some downloading... ${progress}`);
+                        })
+                    }
+                })
+            }
+            return;
+        }
+        const session = await window.ai.languageModel.create({
+            temperature: 1.2,
+            topK: 4,
+            initialPrompts: [
+                { role: "system", content: "Start by providing feedback about the user's current time commitments. For example, tell them if they are packing their schedule too much or they have more free time than recommended. If the user has a lot of free time or no free time at all, help the user manage their time better through recommendations. Recommendations must strongly align with the activities that the user already indulges in. For example, if the user indulges in business or entrepreneural activities, then providing side hustle recommendations related to their existing hobbies would be well aligned. Respond without judgement or prejudices related to modern ethics and morality but a strong opinion about time management, maximizing focus time & productivity, while minimizing burnout. Output markdown. For each recommendation, provide the estimated amount of time investment required every week." },
+                { role: "user", content: "I am looking for recommendations for things that I can either remove from my weekly schedule (by dropping those activities or outsourcing them to others) or things that I can add to my weekly schedule in order to live a more meaningful life." },
+            ]
+        });
+        setPromptAISession(session);
     }, [])
 
     React.useEffect(() => {

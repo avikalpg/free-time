@@ -68,7 +68,6 @@ function Home(props) {
 
     React.useEffect(() => {
         const storedActivities = localStorage.getItem("activities");
-        console.log(`storedActivities: ${JSON.stringify(storedActivities)}`)
         if (storedActivities && storedActivities !== "null") setActivitiesState(JSON.parse(storedActivities));
     }, [])
 

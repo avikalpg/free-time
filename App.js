@@ -10,6 +10,7 @@ import { Header } from './src/Header';
 import Home from './src/Home';
 import PrivacyPolicy from './src/PrivacyPolicy';
 import { DefaultTheme, DarkTheme } from './src/Theme';
+import Help from './src/pages/Help';
 
 const Stack = createNativeStackNavigator();
 
@@ -40,6 +41,7 @@ export default function App() {
 						header: (props) => <Header {...props} />,
 					}}>
 						<Stack.Screen name='Home' component={Home} options={{ title: "Free time in a Week" }} />
+						<Stack.Screen name='Help' component={Help} options={{ title: "Help & Support" }} />
 						<Stack.Screen name='PrivacyPolicy' component={PrivacyPolicy} options={{ title: "Privacy Policy" }} />
 					</Stack.Navigator>
 				</NavigationContainer>
