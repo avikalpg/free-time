@@ -36,12 +36,13 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     activityPie: {
-        position: 'absolute',
+        position: 'relative',
         width: '90%',
         height: '90%',
         alignItems: 'center',
         justifyContent: 'center',
         display: 'flex',
         flex: 1,
+        minHeight: 420,
     }
 })

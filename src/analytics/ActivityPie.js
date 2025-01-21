@@ -12,8 +12,19 @@ export function ActivityPie(props) {
     const theme = useTheme();
     const [activeIndex, setActiveIndex] = React.useState(null);
 
-    const constructDataFromActivities = (activities) => {
+    const pieRadius = 140;
+    const styles = StyleSheet.create({
+        pieChart: {
+            alignSelf: 'center',
+            maxWidth: '100%',
+            maxHeight: '100%',
+            aspectRatio: 1,
+            width: '100%',
+            minHeight: 3 * pieRadius,
+        }
+    })
 
+    const constructDataFromActivities = (activities) => {
         let freeHours = totalHoursInWeek;
         const pieData = activities
             .filter((activity) => activity.hours * activity.duration.multiplier > 0)
@@ -109,8 +120,8 @@ export function ActivityPie(props) {
                             dataKey='value'
                             cx="50%"
                             cy="50%"
-                            innerRadius={80}
-                            outerRadius={140}
+                            innerRadius={10 + pieRadius / 2}
+                            outerRadius={pieRadius}
                             fill="#8884d8"
                             activeIndex={activeIndex}
                             activeShape={renderActiveShape}
@@ -132,13 +143,3 @@ export function ActivityPie(props) {
         </View >
     )
 }
-
-const styles = StyleSheet.create({
-    pieChart: {
-        alignSelf: 'center',
-        maxWidth: '100%',
-        maxHeight: '100%',
-        aspectRatio: 1,
-        width: '100%',
-    }
-})
