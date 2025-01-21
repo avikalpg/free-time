@@ -91,8 +91,8 @@ export function ActivityPie(props) {
                 />
                 <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={final_fill} fill="none" />
                 <circle cx={ex} cy={ey} r={2} fill={final_fill} stroke="none" />
-                <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="#333">{`${getFirstNWords(payload.name, 2)}`}</text>
-                <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={18} textAnchor={textAnchor} fill="#999">
+                <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill={theme.colors.text}>{`${getFirstNWords(payload.name, 2)}`}</text>
+                <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={18} textAnchor={textAnchor} fill={theme.colors.onSurface}>
                     {Number(payload.value.toFixed(1))} hr
                 </text>
             </g>
@@ -120,6 +120,7 @@ export function ActivityPie(props) {
                             endAngle={450}
                             paddingAngle={2}
                             cornerRadius={5}
+                            strokeWidth={0}
                         >
                             {data.map((entry, index) => (
                                 <Cell key={index} fill={entry.color} />
