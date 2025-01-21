@@ -3,6 +3,7 @@ import { PieChart, Pie, Sector, Cell, ResponsiveContainer } from 'recharts';
 import { View, StyleSheet } from "react-native";
 import { useTheme } from "react-native-paper";
 import ErrorBoundary from "../components/ErrorBoundary";
+import { getFirstNWords } from "../utils/utils";
 
 export function ActivityPie(props) {
     const FREE_TIME_KEY = "free-time";
@@ -53,7 +54,7 @@ export function ActivityPie(props) {
 
     const renderActiveShape = (props) => {
         const RADIAN = Math.PI / 180;
-        const { cx, cy, midAngle, innerRadius, outerRadius, startAngle, endAngle, fill, payload, percent, value } = props;
+        const { cx, cy, midAngle, innerRadius, outerRadius, startAngle, endAngle, fill, payload } = props;
         const final_fill = (payload.key === FREE_TIME_KEY) ? theme.colors.placeholder : fill;
         const sin = Math.sin(-RADIAN * midAngle);
         const cos = Math.cos(-RADIAN * midAngle);
@@ -64,7 +65,6 @@ export function ActivityPie(props) {
         const ex = mx + (cos >= 0 ? 1 : -1) * 22;
         const ey = my;
         const textAnchor = cos >= 0 ? 'start' : 'end';
-        console.log(`[ActivityPie] payload: ${JSON.stringify(payload)}`)
 
         return (
             <g>
@@ -75,7 +75,9 @@ export function ActivityPie(props) {
                     outerRadius={outerRadius}
                     startAngle={startAngle}
                     endAngle={endAngle}
-                    fill={final_fill}
+                    fill={(payload.key === FREE_TIME_KEY) ? theme.colors.background : fill}
+                    stroke={final_fill}
+                    strokeWidth={(payload.key === FREE_TIME_KEY) ? 3 : 0}
                     cornerRadius={(payload.key === FREE_TIME_KEY) ? 10 : 5}
                 />
                 <Sector
@@ -89,7 +91,7 @@ export function ActivityPie(props) {
                 />
                 <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={final_fill} fill="none" />
                 <circle cx={ex} cy={ey} r={2} fill={final_fill} stroke="none" />
-                <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="#333">{`${payload.name}`}</text>
+                <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="#333">{`${getFirstNWords(payload.name, 2)}`}</text>
                 <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={18} textAnchor={textAnchor} fill="#999">
                     {Number(payload.value.toFixed(1))} hr
                 </text>
