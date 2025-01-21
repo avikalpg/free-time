@@ -1,13 +1,15 @@
 import React from "react";
-import { PieChart, Pie, Sector, Cell } from 'recharts';
+import { PieChart, Pie, Sector, Cell, ResponsiveContainer } from 'recharts';
 import { View, StyleSheet } from "react-native";
 import { useTheme } from "react-native-paper";
 import ErrorBoundary from "../components/ErrorBoundary";
 
 export function ActivityPie(props) {
+    const FREE_TIME_KEY = "free-time";
     const { activities, totalHoursInWeek } = props;
     const [data, setData] = React.useState([])
     const theme = useTheme();
+    const [activeIndex, setActiveIndex] = React.useState(null);
 
     const constructDataFromActivities = (activities) => {
 
@@ -27,9 +29,12 @@ export function ActivityPie(props) {
 
         pieData.push({
             value: freeHours,
-            key: "free-time",
+            key: FREE_TIME_KEY,
             color: theme.colors.background,
             name: "Free Time",
+            stroke: theme.colors.placeholder,
+            strokeWidth: 2,
+            cornerRadius: 10,
         })
         return pieData
     }
@@ -38,23 +43,88 @@ export function ActivityPie(props) {
         setData(constructDataFromActivities(activities));
     }, [activities, theme])
 
+    const onPieEnter = (_, index) => {
+        setActiveIndex(index);
+    };
+
+    const onPieLeave = (_) => {
+        setActiveIndex(null);
+    };
+
+    const renderActiveShape = (props) => {
+        const RADIAN = Math.PI / 180;
+        const { cx, cy, midAngle, innerRadius, outerRadius, startAngle, endAngle, fill, payload, percent, value } = props;
+        const final_fill = (payload.key === FREE_TIME_KEY) ? theme.colors.placeholder : fill;
+        const sin = Math.sin(-RADIAN * midAngle);
+        const cos = Math.cos(-RADIAN * midAngle);
+        const sx = cx + (outerRadius + 10) * cos;
+        const sy = cy + (outerRadius + 10) * sin;
+        const mx = cx + (outerRadius + 30) * cos;
+        const my = cy + (outerRadius + 30) * sin;
+        const ex = mx + (cos >= 0 ? 1 : -1) * 22;
+        const ey = my;
+        const textAnchor = cos >= 0 ? 'start' : 'end';
+        console.log(`[ActivityPie] payload: ${JSON.stringify(payload)}`)
+
+        return (
+            <g>
+                <Sector
+                    cx={cx}
+                    cy={cy}
+                    innerRadius={innerRadius}
+                    outerRadius={outerRadius}
+                    startAngle={startAngle}
+                    endAngle={endAngle}
+                    fill={final_fill}
+                    cornerRadius={(payload.key === FREE_TIME_KEY) ? 10 : 5}
+                />
+                <Sector
+                    cx={cx}
+                    cy={cy}
+                    startAngle={startAngle}
+                    endAngle={endAngle}
+                    innerRadius={outerRadius + 6}
+                    outerRadius={outerRadius + 10}
+                    fill={final_fill}
+                />
+                <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={final_fill} fill="none" />
+                <circle cx={ex} cy={ey} r={2} fill={final_fill} stroke="none" />
+                <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="#333">{`${payload.name}`}</text>
+                <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={18} textAnchor={textAnchor} fill="#999">
+                    {Number(payload.value.toFixed(1))} hr
+                </text>
+            </g>
+        );
+    };
+
     return (
         <View style={props.style}>
             <ErrorBoundary >
-                <PieChart width={300} height={300}>
-                    <Pie
-                        data={data}
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={60}
-                        fill="#8884d8"
-                        label={(entry) => entry.name}
-                    >
-                        {data.map((entry, index) => (
-                            <Cell key={index} fill={entry.color} />
-                        ))}
-                    </Pie>
-                </PieChart>
+                <ResponsiveContainer style={styles.pieChart}>
+                    <PieChart width={600} height={600}>
+                        <Pie
+                            data={data}
+                            dataKey='value'
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={60}
+                            outerRadius={100}
+                            fill="#8884d8"
+                            activeIndex={activeIndex}
+                            activeShape={renderActiveShape}
+                            onMouseEnter={onPieEnter}
+                            onMouseLeave={onPieLeave}
+                            startAngle={90}
+                            endAngle={450}
+                            paddingAngle={2}
+                            cornerRadius={5}
+                        >
+                            {data.map((entry, index) => (
+                                <Cell key={index} fill={entry.color} />
+                            ))}
+                        </Pie>
+                    </PieChart>
+                </ResponsiveContainer>
             </ErrorBoundary>
         </View >
     )
