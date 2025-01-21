@@ -40,3 +40,25 @@ export const validateHours = (activity) => {
     }
     return { valid: true, reason: "" };
 }
+
+/**
+ *
+ * @param {string} str string from which we want the substring
+ * @param {number} n number of words you want to extract
+ * @returns n-word long prefix substring from str
+ */
+export function getFirstNWords(str, n) {
+    if (typeof str !== 'string' || str.trim() === "") {
+        return ""; // Or handle invalid input as needed (e.g., throw an error)
+    }
+
+    const words = str.trim().split(/\s+/); // Split by any whitespace (including multiple spaces)
+    if (words.length >= n) {
+        return words.slice(0, n).join(" ");
+    } else if (words.length === 1) {
+        return words[0];
+    }
+    else {
+        return ""; // or null, or whatever you want to return if it's an empty string.
+    }
+}

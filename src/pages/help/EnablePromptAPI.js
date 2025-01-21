@@ -32,8 +32,8 @@ const EnablePromptAPI = () => {
 			borderRadius: 5,
 		},
 		link: {
-			color: 'blue',
 			textDecorationLine: 'underline',
+			textDecorationColor: theme.colors.accent,
 			marginBottom: 5,
 		},
 	});
@@ -73,7 +73,7 @@ const EnablePromptAPI = () => {
 					<ol type='i'>
 						<li>
 							<Text style={styles.step}>
-								Go to <Text style={{ color: 'blue' }} onPress={() => Linking.openURL('chrome://flags')}>chrome://flags</Text> in your browser.
+								Go to <Text style={styles.link} onPress={() => Linking.openURL('chrome://flags')}>chrome://flags</Text> in your browser.
 							</Text>
 						</li>
 						<li>

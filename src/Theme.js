@@ -20,6 +20,8 @@ export const DefaultTheme = {
         surface: '#dfdfdf',
         primary: '#005f3d',
         accent: '#7de8ab',
+        text: '#333',
+        onSurface: '#999',
     }
 };
 export const DarkTheme = {
@@ -28,5 +30,7 @@ export const DarkTheme = {
         ...CombinedDarkTheme.colors,
         primary: '#66ff99',
         accent: '#3a6b5a',
+        text: '#dfdfdf',
+        onSurface: '#aaa',
     }
 };
