@@ -1,5 +1,5 @@
 import React from "react";
-import { PieChart } from "react-native-svg-charts";
+import { PieChart, Pie, Sector, Cell } from 'recharts';
 import { View, StyleSheet } from "react-native";
 import { useTheme } from "react-native-paper";
 import ErrorBoundary from "../components/ErrorBoundary";
@@ -20,23 +20,16 @@ export function ActivityPie(props) {
                 return {
                     value: hoursInWeek,
                     key: index,
-                    svg: {
-                        fill: activity.color,
-                        onPress: () => console.log('press', activity.name),
-                    }
+                    color: activity.color,
+                    name: activity.name,
                 }
             })
 
         pieData.push({
             value: freeHours,
             key: "free-time",
-            svg: {
-                fill: theme.colors.background,
-                stroke: theme.colors.placeholder,
-                strokeWidth: 2,
-                onPress: () => console.log('press', 'free-time'),
-            },
-            arc: { outerRadius: '100%', innerRadius: '40%', cornerRadius: 10, }
+            color: theme.colors.background,
+            name: "Free Time",
         })
         return pieData
     }
@@ -48,15 +41,19 @@ export function ActivityPie(props) {
     return (
         <View style={props.style}>
             <ErrorBoundary >
-                <PieChart
-                    style={styles.pieChart}
-                    data={data}
-                    sort={(a, b) => (b.key === "free-time") ? 1
-                        : (a.key === "free-time") ? -1
-                            : b.value - a.value
-                    }
-                >
-                    {props.children}
+                <PieChart width={300} height={300}>
+                    <Pie
+                        data={data}
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={60}
+                        fill="#8884d8"
+                        label={(entry) => entry.name}
+                    >
+                        {data.map((entry, index) => (
+                            <Cell key={index} fill={entry.color} />
+                        ))}
+                    </Pie>
                 </PieChart>
             </ErrorBoundary>
         </View >
