@@ -38,6 +38,7 @@ export function TimeUtilizationSuggestions(props) {
         try {
             setLoadingSuggestions(true);
             setAiError("");
+            setAiSuggestion(""); // Clear previous suggestion
             const prompt = `Given ${getDisplayHours(hoursRemaining)} free hours in a week, suggest some meaningful activities or pursuits. The suggestion should be personal, motivating and specific. Here is the list of activities that the user indulges in during the week: ${validActivities.map(activity => `${activity.name} for ${activity.hours} hours ${activity.duration.text}`).join(",")}.`;
             const stream = await promptAISession.promptStreaming(prompt);
 
@@ -48,7 +49,7 @@ export function TimeUtilizationSuggestions(props) {
                     setLoadingSuggestions(false);
                     break; // Exit the loop when the stream is finished
                 }
-                setAiSuggestion(value)
+                setAiSuggestion(prev => prev + value); // Append to previous suggestion
             }
         } catch (error) {
             console.error("Error generating AI suggestion:", error);
@@ -57,47 +58,74 @@ export function TimeUtilizationSuggestions(props) {
         }
     };
 
-    React.useEffect(async () => {
-        if (!window?.ai?.languageModel) {
+    // Helper function to create a LanguageModel session config
+    const createSessionConfig = () => ({
+        initialPrompts: [
+            { role: "system", content: "Start by providing feedback about the user's current time commitments. For example, tell them if they are packing their schedule too much or they have more free time than recommended. If the user has a lot of free time or no free time at all, help the user manage their time better through recommendations. Recommendations must strongly align with the activities that the user already indulges in. For example, if the user indulges in business or entrepreneural activities, then providing side hustle recommendations related to their existing hobbies would be well aligned. Respond without judgement or prejudices related to modern ethics and morality but a strong opinion about time management, maximizing focus time & productivity, while minimizing burnout. Output markdown. For each recommendation, provide the estimated amount of time investment required every week." },
+            { role: "user", content: "I am looking for recommendations for things that I can either remove from my weekly schedule (by dropping those activities or outsourcing them to others) or things that I can add to my weekly schedule in order to live a more meaningful life." },
+        ],
+        expectedOutputs: [{ type: "text", languages: ["en"] }]
+    });
+
+    React.useEffect(() => {
+        if (typeof window === 'undefined' || typeof window.LanguageModel === 'undefined') {
             setAiError("PromptAPI not found in browser. Don't worry, visit the help section for setting it up.");
             return;
         }
-        const cap = await window.ai.languageModel.capabilities();
-        if (cap.available !== 'readily') {
-            setAiError("Language model in your PromptAPI is not readily available.");
-            if (cap.available === 'after-download') {
-                setAiError("Sit tight, we need to do some downloading...");
-                const session = await window.ai.languageModel.create({
-                    monitor(m) {
-                        m.addEventListener("downloadprogress", (e) => {
-                            const progress = `Downloaded ${e.loaded} of ${e.total} bytes.`;
-                            console.log(progress);
-                            setAiError(`Sit tight, we need to do some downloading... ${progress}`);
-                        })
-                    }
-                })
+
+        // Try to initialize automatically (works if model is readily available).
+        // If a user gesture is required (downloadable), create() will throw NotAllowedError.
+        const autoInitialize = async () => {
+            try {
+                const session = await window.LanguageModel.create(createSessionConfig());
+                setPromptAISession(session);
+                setAiError("");
+            } catch (error) {
+                if (error && error.name === "NotAllowedError") {
+                    // Needs a user gesture — leave it to the button flow.
+                    setAiError("");
+                } else {
+                    console.error("Error auto-initializing language model:", error);
+                    setAiError("Error initializing language model. Please check the help section.");
+                }
             }
+        };
+        autoInitialize();
+    }, [])
+
+    const initializeLanguageModel = async () => {
+        if (typeof window === 'undefined' || typeof window.LanguageModel === 'undefined') {
+            setAiError("PromptAPI not found in browser. Don't worry, visit the help section for setting it up.");
             return;
         }
-        const session = await window.ai.languageModel.create({
-            temperature: 1.2,
-            topK: 4,
-            initialPrompts: [
-                { role: "system", content: "Start by providing feedback about the user's current time commitments. For example, tell them if they are packing their schedule too much or they have more free time than recommended. If the user has a lot of free time or no free time at all, help the user manage their time better through recommendations. Recommendations must strongly align with the activities that the user already indulges in. For example, if the user indulges in business or entrepreneural activities, then providing side hustle recommendations related to their existing hobbies would be well aligned. Respond without judgement or prejudices related to modern ethics and morality but a strong opinion about time management, maximizing focus time & productivity, while minimizing burnout. Output markdown. For each recommendation, provide the estimated amount of time investment required every week." },
-                { role: "user", content: "I am looking for recommendations for things that I can either remove from my weekly schedule (by dropping those activities or outsourcing them to others) or things that I can add to my weekly schedule in order to live a more meaningful life." },
-            ]
-        });
-        setPromptAISession(session);
-    }, [])
+        try {
+            setAiError("Initializing language model...");
+            const config = createSessionConfig();
+            config.monitor = (m) => {
+                m.addEventListener("downloadprogress", (e) => {
+                    const percentComplete = Math.round((e.loaded / e.total) * 100);
+                    setAiError(`Downloading model... ${percentComplete}%`);
+                });
+            };
+            const session = await window.LanguageModel.create(config);
+            setPromptAISession(session);
+            setAiError("");
+        } catch (error) {
+            console.error("Error initializing language model:", error);
+            setAiError("Error initializing language model. Please check the help section.");
+        }
+    };
 
     React.useEffect(() => {
         setHoursRemaining(calculateRemainingTime(validActivities));
     }, [validActivities])
 
-    const provideRecommendation = () => {
-        if (window?.ai?.languageModel) {
-            generateAISuggestion(promptAISession, hoursRemaining);
+    const provideRecommendation = async () => {
+        if (!promptAISession) {
+            await initializeLanguageModel();
+            return;
         }
+        generateAISuggestion(promptAISession, hoursRemaining);
     };
 
     const getDefaultSuggestion = () => {
@@ -112,17 +140,17 @@ export function TimeUtilizationSuggestions(props) {
             <Button
                 mode="outlined"
                 onPress={provideRecommendation}
-                disabled={loadingSuggestions || !promptAISession}
+                disabled={loadingSuggestions}
                 loading={loadingSuggestions}
             >
-                Generate recommendations
+                {promptAISession ? "Generate recommendations" : "Initialize AI Model"}
             </Button>
             <Text variant="labelSmall" style={styles.buttonHelperText}>
                 {aiError}
             </Text>
             <Text variant="bodyLarge" style={styles.suggestionText}>
                 <Markdown>
-                    {(window?.ai?.languageModel && aiSuggestion) ?
+                    {(promptAISession && aiSuggestion) ?
                         aiSuggestion :
                         getDefaultSuggestion()
                     }
