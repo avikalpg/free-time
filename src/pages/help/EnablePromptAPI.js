@@ -49,27 +49,28 @@ const EnablePromptAPI = () => {
 					<ol type="i">
 						<li>
 							<Text style={styles.step}>
-								Ensure you are using Chrome version 92 or higher.
+								Ensure you are using Chrome version 129 or higher. The latest AI features will work best in Chrome Canary or Dev channel.
 							</Text>
 							<Text variant='bodySmall'>
 								<ul>
 									<li>You can check your version by clicking on the three dots in the top right corner, then <Text style={{ fontStyle: 'italic' }}>'Help' &gt; 'About Google Chrome'</Text>.</li>
 									<li>Look for the version number in the format: <Text style={{ fontStyle: 'italic' }}>Version 132.0.6834.83</Text>.</li>
-									<li>Make sure the first number (major version) is 92 or greater.</li>
+									<li>Make sure the first number (major version) is 129 or greater.</li>
+									<li>(optional) Download Chrome Canary from <Text style={{ fontStyle: 'italic' }}>google.com/chrome/canary/</Text> for the best experience.</li>
 								</ul>
 							</Text>
 
 						</li>
 						<li>
 							<Text style={styles.step}>
-								If your version is below 92, update Chrome by going to <Text style={{ fontStyle: 'italic' }}>'Help' &gt; 'About Google Chrome'</Text> and following the prompts to update.
+								If your version is below 129, update Chrome by going to <Text style={{ fontStyle: 'italic' }}>'Help' &gt; 'About Google Chrome'</Text> and following the prompts to update, or install Chrome Canary.
 							</Text>
 						</li>
 					</ol>
 				</li>
 
 				<li style={{ marginBottom: 10 }}>
-					<Text style={styles.sectionTitle}>Enable the Prompt API Flag</Text>
+					<Text style={styles.sectionTitle}>Enable the Prompt API Flags</Text>
 					<ol type='i'>
 						<li>
 							<Text style={styles.step}>
@@ -83,12 +84,25 @@ const EnablePromptAPI = () => {
 						</li>
 						<li>
 							<Text style={styles.step}>
+								Also search for "optimization guide on device model" and set it to "Enabled BypassPerfRequirement".
+							</Text>
+						</li>
+						<li>
+							<Text style={styles.step}>
 								Restart your browser for the changes to take effect.
 							</Text>
 						</li>
 						<li>
 							<Text style={styles.step}>
-								Confirm that the AI capabilities are available by typing <Text style={{ fontStyle: 'italic' }}>(await ai.assistant.capabilities()).available;</Text> in DevTools console.
+								After restarting, the LanguageModel API should be available. You can verify it in the DevTools console:
+							</Text>
+							<Text variant='bodySmall'>
+								<ul>
+									<li>Open DevTools console (press F12 or right-click → Inspect)</li>
+									<li>Type: <Text style={{ fontStyle: 'italic' }}>window.LanguageModel</Text></li>
+									<li>If it shows a class/constructor, the API is available and ready to use.</li>
+									<li>If it returns <Text style={{ fontStyle: 'italic' }}>undefined</Text>, double-check the flags and Chrome version.</li>
+								</ul>
 							</Text>
 						</li>
 					</ol>
