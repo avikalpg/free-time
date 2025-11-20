@@ -96,6 +96,13 @@ export function TimeUtilizationSuggestions(props) {
             color: '#000000',
             lineHeight: 20,
         },
+        uninitializedContainer: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingHorizontal: 20,
+            paddingVertical: 20,
+        },
     })
 
     const generateAISuggestion = async (promptAISession, userMessage, isInitial = false) => {
@@ -260,7 +267,7 @@ export function TimeUtilizationSuggestions(props) {
 
     if (!promptAISession && aiError) {
         return (
-            <View style={[props.style, styles.container]}>
+            <View style={[props.style, styles.container, styles.uninitializedContainer]}>
                 <Button
                     mode="outlined"
                     onPress={initializeLanguageModel}
