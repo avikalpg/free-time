@@ -11,7 +11,7 @@ const SECTIONS = [
     {
         emoji: '🔍',
         title: 'The Awareness Gap',
-        body: 'Most of us have a vague sense that we're "busy," but we rarely stop to measure it. We underestimate how much time disappears into commutes, errands, and passive screen time — and overestimate how much is left for the things we actually care about: hobbies, family, health, side projects, or simply resting.',
+        body: "Most of us have a vague sense that we're \"busy,\" but we rarely stop to measure it. We underestimate how much time disappears into commutes, errands, and passive screen time — and overestimate how much is left for the things we actually care about: hobbies, family, health, side projects, or simply resting.",
     },
     {
         emoji: '🧮',
@@ -21,7 +21,7 @@ const SECTIONS = [
     {
         emoji: '💡',
         title: 'Why It Matters',
-        body: 'Self-awareness is the first step to intentional living. Once you see your week laid out in numbers, you can make conscious decisions: cut the things that don't bring joy, protect time for the things that do, or simply stop feeling guilty about rest when you can see you've genuinely earned it.',
+        body: "Self-awareness is the first step to intentional living. Once you see your week laid out in numbers, you can make conscious decisions: cut the things that don't bring joy, protect time for the things that do, or simply stop feeling guilty about rest when you can see you've genuinely earned it.",
     },
     {
         emoji: '🕊️',
