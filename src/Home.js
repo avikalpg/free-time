@@ -11,6 +11,7 @@ import { ActivityPeriods } from './EnumActivityPeriod';
 import { Footer } from './Footer';
 import { randomColor } from './utils/utils';
 import { TimeUtilizationSuggestions } from './TimeUtilizationSuggestions';
+import { PhilosophySection } from './PhilosophySection';
 
 function Home(props) {
     ReactGA.send("pageview")
@@ -89,6 +90,7 @@ function Home(props) {
                     <TimeUtilizationSuggestions activities={activities} style={styles.description} />
                 </View>
             </View>
+            <PhilosophySection />
             <Footer />
             <StatusBar style="auto" />
         </ScrollView>
