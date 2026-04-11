@@ -51,6 +51,14 @@ export function Footer(props) {
             </Button>
             <Button
                 mode='text'
+                onPress={() => navigation.navigate('Philosophy')}
+                color={theme.colors.text}
+                uppercase={false}
+            >
+                Philosophy
+            </Button>
+            <Button
+                mode='text'
                 onPress={() => navigation.navigate('PrivacyPolicy')}
                 color={theme.colors.text}
                 uppercase={false}
