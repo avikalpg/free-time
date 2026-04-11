@@ -1,51 +1,104 @@
-## About us
+# Privacy Policy
 
-[My Free-time in a week](https://myfreetimeinaweek.in) (the "Application") is stand-alone webpage created by an individual developer named Avikalp Kumar Gupta, a resident of Bengaluru, India. This Application was created with the objective of helping people reassess how they spend their time in order to either be more productive, find time for their hobbies or their families or even just be happier with their lifestyle.
+**Last updated: April 11, 2026**
 
-This Application has been created as a utility tool, and runs entirely on the client-side. Hence, our servers do not collect any information. However, we do use [Google Adsense](https://www.google.com/adsense/start/) to show advertisement on our website. Hence, our privacy policy is identical to Google's policies on serving ads, and hence is not in our sole control. This Privacy Policy attempts to describe how your personal information is collected, used, and shared when you visit [My Free-time in a week](https://myfreetimeinaweek.in) (the “Application”).
+## About Us
 
-## Personal information that we collect
+[My Free-time in a week](https://myfreetimeinaweek.in) (the "Application") is a standalone webpage created by an individual developer, Avikalp Kumar Gupta, a resident of Bengaluru, India. The Application was created to help people reassess how they spend their time — to be more productive, find time for hobbies or family, or simply live more happily.
 
-When you visit the Application, we automatically collect certain information about your device, including information about your web browser, IP address, time zone, and some of the cookies that are installed on your device. Additionally, as you use the Application, we collect information about the individual web pages or products that you view, what websites or search terms referred you to the Application, and information about how you interact with the Application. We refer to this automatically-collected information as “Device Information.”
+## How the Application Works
 
-We collect Device Information using the following technologies:
+The Application runs entirely in your browser. Your activity data is stored locally on your device using **browser localStorage** and is never transmitted to our servers. We have no backend database storing your personal information.
 
-- “Cookies” are data files that are placed on your device or computer and often include an anonymous unique identifier. For more information about cookies, and how to disable cookies, visit http://www.allaboutcookies.org.
-- “Log files” track actions occurring on the Application, and collect data including your IP address, browser type, Internet service provider, referring/exit pages, and date/time stamps.
-- “Web beacons,” “tags,” and “pixels” are electronic files used to record information about how you use the Application.
+The Application optionally uses your **browser's built-in AI (Chrome Prompt API / `window.ai`)** to generate personalised suggestions. This feature runs entirely on-device — no data is sent to any external AI service.
 
-When we talk about “Personal Information” in this Privacy Policy, we are talking about the Device Information.
+## Information We Collect
 
-## How do we use your personal information?
+When you visit the Application, certain information is automatically collected by third-party services we use (described below). This includes:
 
-We use the Device Information that we collect to help us screen for potential risk and fraud (in particular, your IP address), and more generally to improve and optimize our Application (for example, by generating analytics about how our customers browse and interact with the Application, and to assess the success of our marketing and advertising campaigns). This information is used by Google Adsense to personalize and target advertisements displayed on this Application.
+- Your IP address and approximate location
+- Browser type, operating system, and device information
+- Pages viewed, time spent, and how you interact with the Application
+- Referring website or search terms
 
-## Sharing your personal information
+We refer to this as **Device Information**. It is collected via cookies, log files, web beacons, and similar tracking technologies.
 
-We share your Personal Information with third parties to help us use your Personal Information, as described above. We also use Google Analytics to help us understand how our customers use the Application--you can read more about how Google uses your Personal Information here:  https://www.google.com/intl/en/policies/privacy/.  You can also opt-out of Google Analytics here:  https://tools.google.com/dlpage/gaoptout.
+## Third-Party Services
 
-Finally, we may also share your Personal Information to comply with applicable laws and regulations, to respond to a subpoena, search warrant or other lawful request for information we receive, or to otherwise protect our rights.
+We use the following third-party services. Each operates under its own privacy policy and may collect Device Information independently.
+
+### 1. Google Analytics 4 (GA4)
+- **Purpose:** Understanding how visitors use the Application (page views, session data, traffic sources).
+- **Data collected:** Anonymised usage data, IP address (anonymised), device/browser info.
+- **Tracking ID:** `G-S9YE72LCW4`
+- **Google's privacy policy:** <https://policies.google.com/privacy>
+- **Opt out:** <https://tools.google.com/dlpage/gaoptout>
+
+### 2. Google AdSense
+- **Purpose:** Displaying advertisements on the Application.
+- **Data collected:** Cookie-based identifiers, browsing behaviour, IP address — used to serve personalised ads.
+- **Publisher ID:** `ca-pub-9543408536781579`
+- **Ad script:** `pagead2.googlesyndication.com`
+- **Google's privacy policy:** <https://policies.google.com/privacy>
+- **Google's ad settings:** <https://www.google.com/settings/ads/anonymous>
+- **Opt out of personalised ads:** <https://www.google.com/settings/ads>
+
+Because we use Google AdSense, our data practices for advertising are governed by Google's policies and are not solely in our control.
+
+### 3. Browser localStorage
+- **Purpose:** Saving your activity list between sessions so you don't have to re-enter it.
+- **Data stored:** The activity names and hours you enter, stored only on your own device.
+- **Server transmission:** None — this data never leaves your browser.
+- **Clear it:** You can clear your browser's localStorage at any time via your browser settings.
+
+### 4. Chrome Prompt API (on-device AI)
+- **Purpose:** Generating personalised free-time suggestions using your browser's built-in language model.
+- **Data sent externally:** None — all processing happens locally in your browser.
+- **Availability:** Only active if your browser supports `window.ai` (Chrome with Prompt API enabled).
+
+## How We Use Your Information
+
+We (and the third-party services above) use Device Information to:
+
+- Understand how visitors use the Application and improve it
+- Display advertisements (via Google AdSense)
+- Screen for potential fraud or abuse (via IP address)
+- Assess the effectiveness of the Application
 
 ## Behavioural Advertising
-As described above, we use your Personal Information to provide you with targeted advertisements or marketing communications we believe may be of interest to you.  For more information about how targeted advertising works, you can visit the Network Advertising Initiative’s (“NAI”) educational page at http://www.networkadvertising.org/understanding-online-advertising/how-does-it-work.
 
-You can opt out of targeted advertising by:
-    GOOGLE - https://www.google.com/settings/ads/anonymous
+Google AdSense may use your Device Information to serve targeted advertisements. For more information on how targeted advertising works, visit the [Network Advertising Initiative](http://www.networkadvertising.org/understanding-online-advertising/how-does-it-work).
 
-Additionally, you can opt out of some of these services by visiting the Digital Advertising Alliance’s opt-out portal at:  http://optout.aboutads.info/.
+You can opt out of targeted advertising:
+- **Google:** <https://www.google.com/settings/ads/anonymous>
+- **Digital Advertising Alliance:** <http://optout.aboutads.info/>
 
-## Do not track
-Please note that currently we do not alter our Application’s data collection and use practices when we see a Do Not Track signal from your browser.
+## Sharing Your Information
 
-## Your rights
-If you are a European resident, you have the right to access personal information we hold about you and to ask that your personal information be corrected, updated, or deleted. If you would like to exercise this right, please contact us through the contact information below.
-Additionally, if you are a European resident we note that we are processing your information in order to fulfill contracts we might have with you (for example if you make an order through the Application), or otherwise to pursue our legitimate business interests listed above.  Additionally, please note that your information will be transferred outside of Europe, including to Canada and the United States.
+We do not sell your personal information. We share Device Information only with the third-party services listed above (Google Analytics and Google AdSense) as described in this policy, or when required by law (e.g. in response to a subpoena or legal request).
+
+## Do Not Track
+
+We do not currently alter our data collection practices in response to Do Not Track signals from your browser.
+
+## Your Rights
+
+**If you are a resident of the European Economic Area (EEA):** You have the right to access, correct, update, or request deletion of your personal information. Please contact us using the details below.
+
+**If you are a California resident (CCPA):** You have the right to know what personal information is collected, to request deletion, and to opt out of the sale of personal information (we do not sell personal information).
+
+**For all users:** You may opt out of Google Analytics tracking using the [Google Analytics Opt-out Browser Add-on](https://tools.google.com/dlpage/gaoptout) and manage ad preferences via [Google Ad Settings](https://www.google.com/settings/ads).
 
 ## Minors
-The Application is appropriate for everyone and has no age restrictions. Although, the Application is intended for individuals above the age of 16. The Application serves ads, so users below the intended age are advised to exercise precaution while using the Application.
 
-## Changes
-We may update this privacy policy from time to time in order to reflect, for example, changes to our practices or for other operational, legal or regulatory reasons.
+The Application has no age restrictions but is intended for individuals aged 16 and above. Because the Application serves advertisements, users below 16 are advised to exercise caution.
 
-## Contact us
-For more information about our privacy practices, if you have questions, or if you would like to make a complaint, please contact us by e-mail at [avikalpgupta \[at\] gmail .com](mailto:avikalpgupta@gmail.com).
+## Changes to This Policy
+
+We may update this Privacy Policy from time to time. Changes will be reflected by updating the "Last updated" date at the top of this page. We encourage you to review this page periodically.
+
+## Contact Us
+
+For questions about this Privacy Policy or to exercise your data rights, please contact us:
+
+**Email:** [avikalpgupta@gmail.com](mailto:avikalpgupta@gmail.com)
