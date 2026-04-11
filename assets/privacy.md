@@ -28,8 +28,8 @@ We refer to this as **Device Information**. It is collected via cookies, log fil
 We use the following third-party services. Each operates under its own privacy policy and may collect Device Information independently.
 
 ### 1. Google Analytics 4 (GA4)
-- **Purpose:** Understanding how visitors use the Application (page views, session data, traffic sources).
-- **Data collected:** Anonymised usage data, IP address (anonymised), device/browser info.
+- **Purpose:** Understanding how visitors use the Application (page views, session data, traffic sources, and interaction events).
+- **Data collected:** Page view data, IP address (anonymised by Google), device/browser info, and **interaction events** — including user-entered activity names, hours, and duration values sent as custom event dimensions when you add, edit, or delete activities in the tool.
 - **Tracking ID:** `G-S9YE72LCW4`
 - **Google's privacy policy:** <https://policies.google.com/privacy>
 - **Opt out:** <https://tools.google.com/dlpage/gaoptout>
@@ -67,11 +67,11 @@ We (and the third-party services above) use Device Information to:
 
 ## Behavioural Advertising
 
-Google AdSense may use your Device Information to serve targeted advertisements. For more information on how targeted advertising works, visit the [Network Advertising Initiative](http://www.networkadvertising.org/understanding-online-advertising/how-does-it-work).
+Google AdSense may use your Device Information to serve targeted advertisements. For more information on how targeted advertising works, visit the [Network Advertising Initiative](https://thenai.org/about-online-advertising/how-does-it-work/).
 
 You can opt out of targeted advertising:
 - **Google:** <https://www.google.com/settings/ads/anonymous>
-- **Digital Advertising Alliance:** <http://optout.aboutads.info/>
+- **Digital Advertising Alliance (DAA WebChoices):** <https://youradchoices.com/choices>
 
 ## Sharing Your Information
 
@@ -91,7 +91,9 @@ We do not currently alter our data collection practices in response to Do Not Tr
 
 ## Minors
 
-The Application has no age restrictions but is intended for individuals aged 16 and above. Because the Application serves advertisements, users below 16 are advised to exercise caution.
+This Application is **not directed at children under 13** and we do not knowingly collect personal information from children under 13. The Application is intended for individuals aged 13 and above; users under 16 should exercise caution given that the site serves advertisements.
+
+If you are a parent or guardian and believe your child under 13 has used this Application and had personal information collected (via Google Analytics or AdSense), please contact us at the address below and we will take steps to delete that information. We do not knowingly allow targeted advertising toward users under 13.
 
 ## Changes to This Policy
 
