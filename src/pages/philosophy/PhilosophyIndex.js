@@ -2,41 +2,12 @@ import React from 'react';
 import { View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text, Divider, useTheme } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
+import { PHILOSOPHY_ROUTES } from './routes';
 import { Footer } from '../../Footer';
 import { StatusBar } from 'expo-status-bar';
 
-const ARTICLES = [
-    {
-        route: 'PhilosophyOrigin',
-        eyebrow: 'The Story Behind the Tool',
-        title: 'You Have More Time Than You Think',
-        summary: 'Why this tool was built — the mindset of abundance, and how seeing the numbers changes everything.',
-    },
-    {
-        route: 'PhilosophyFocus',
-        eyebrow: 'Time & Productivity',
-        title: 'Free Hours Aren\'t Enough — You Need Free Blocks',
-        summary: 'Why fragmented time is nearly worthless, and how protecting focus blocks changes what you can actually accomplish.',
-    },
-    {
-        route: 'PhilosophyBuffers',
-        eyebrow: 'Time & Planning',
-        title: 'Never Schedule to Zero',
-        summary: 'Why intentional slack in your schedule is one of the most productive things you can build into your week.',
-    },
-    {
-        route: 'PhilosophyRecovery',
-        eyebrow: 'Time & Wellbeing',
-        title: 'Rest Is Not the Absence of Work',
-        summary: 'Why recovery deserves a real place on your calendar — and how ignoring it costs you far more than it saves.',
-    },
-    {
-        route: 'PhilosophyLifeGoals',
-        eyebrow: 'Time & Purpose',
-        title: 'Busy Every Day, Going Nowhere',
-        summary: 'Why optimising your days without asking where they lead is the most common form of productive procrastination.',
-    },
-];
+// Derive article list from the registry — filter out the index page itself
+const ARTICLES = PHILOSOPHY_ROUTES.filter((r) => r.eyebrow !== null);
 
 export default function PhilosophyIndex() {
     const theme = useTheme();
@@ -53,8 +24,8 @@ export default function PhilosophyIndex() {
                 <Divider style={styles.divider} />
                 {ARTICLES.map((article, index) => (
                     <TouchableOpacity
-                        key={article.route}
-                        onPress={() => navigation.navigate(article.route)}
+                        key={article.name}
+                        onPress={() => navigation.navigate(article.name)}
                         style={styles.card}
                         accessibilityRole="link"
                     >
