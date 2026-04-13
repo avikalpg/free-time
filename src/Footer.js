@@ -35,6 +35,19 @@ export function Footer(props) {
         },
     });
 
+    const Copyright = () => (
+        <Text style={styles.copyright}>
+            {'© '}
+            <Text
+                style={[styles.copyright, { textDecorationLine: 'underline' }]}
+                onPress={openURL("https://github.com/avikalpg")}
+            >
+                Avikalp Gupta
+            </Text>
+            {' '}{new Date().getFullYear()}
+        </Text>
+    );
+
     return (
         <View style={styles.footer}>
             <View style={styles.linksRow}>
@@ -65,16 +78,7 @@ export function Footer(props) {
                 </Button>
             </View>
             <View style={styles.copyrightRow}>
-                <Text style={styles.copyright}>
-                    {'© '}
-                    <Text
-                        style={[styles.copyright, { textDecorationLine: 'underline' }]}
-                        onPress={openURL("https://github.com/avikalpg")}
-                    >
-                        Avikalp Gupta
-                    </Text>
-                    {' '}{new Date().getFullYear()}
-                </Text>
+                <Copyright />
             </View>
         </View>
     );
