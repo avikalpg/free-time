@@ -12,6 +12,10 @@ const APP_ID = 'free-time';
 const STORAGE_KEY_TOKEN = 'byok_relay_token';
 const STORAGE_KEY_PROVIDER = 'byok_provider';
 
+// ── Model versions (update here when Anthropic/Google release newer snapshots) ─
+const MODEL_ANTHROPIC = 'claude-3-5-haiku-20241022'; // latest Haiku as of Apr 2026
+const MODEL_GOOGLE = 'gemini-2.5-flash';              // latest Flash as of Apr 2026
+
 // ── Token management ────────────────────────────────────────────────────────
 
 async function getOrCreateToken() {
@@ -34,6 +38,8 @@ async function getOrCreateToken() {
 
 export async function storeApiKey(provider, apiKey) {
     const token = await getOrCreateToken();
+    // NOTE: localStorage is web-only. On native RN, use AsyncStorage abstraction instead.
+    if (!token) throw new Error('Storage not available (localStorage missing — web only)');
     const res = await fetch(`${RELAY_URL}/keys/${provider}`, {
         method: 'POST',
         headers: {
@@ -65,6 +71,7 @@ export async function listStoredProviders() {
 
 export async function deleteApiKey(provider) {
     const token = await getOrCreateToken();
+    if (!token) return false;
     const res = await fetch(`${RELAY_URL}/keys/${provider}`, {
         method: 'DELETE',
         headers: { 'x-relay-token': token },
@@ -94,7 +101,7 @@ const PROVIDER_CONFIGS = {
     anthropic: {
         path: '/v1/messages',
         buildBody: (messages, systemPrompt) => ({
-            model: 'claude-3-5-haiku-20241022',
+            model: MODEL_ANTHROPIC,
             max_tokens: 1024,
             system: systemPrompt,
             messages: messages
@@ -119,7 +126,7 @@ const PROVIDER_CONFIGS = {
 
     google: {
         // The relay server appends ?alt=sse&key=... for streaming
-        path: '/v1beta/models/gemini-2.5-flash:streamGenerateContent',
+        path: `/v1beta/models/${MODEL_GOOGLE}:streamGenerateContent`,
         buildBody: (messages, systemPrompt) => ({
             system_instruction: { parts: [{ text: systemPrompt }] },
             contents: messages
