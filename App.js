@@ -11,6 +11,7 @@ import Home from './src/Home';
 import PrivacyPolicy from './src/PrivacyPolicy';
 import { DefaultTheme, DarkTheme } from './src/Theme';
 import Help from './src/pages/Help';
+import { PHILOSOPHY_ROUTES } from './src/pages/philosophy/routes';
 
 const Stack = createNativeStackNavigator();
 
@@ -43,6 +44,9 @@ export default function App() {
 						<Stack.Screen name='Home' component={Home} options={{ title: "Free time in a Week" }} />
 						<Stack.Screen name='Help' component={Help} options={{ title: "Help & Support" }} />
 						<Stack.Screen name='PrivacyPolicy' component={PrivacyPolicy} options={{ title: "Privacy Policy" }} />
+						{PHILOSOPHY_ROUTES.map(({ name, component, title }) => (
+							<Stack.Screen key={name} name={name} component={component} options={{ title }} />
+						))}
 					</Stack.Navigator>
 				</NavigationContainer>
 			</PaperProvider>

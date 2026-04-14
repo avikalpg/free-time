@@ -11,6 +11,7 @@ import { ActivityPeriods } from './EnumActivityPeriod';
 import { Footer } from './Footer';
 import { randomColor } from './utils/utils';
 import { TimeUtilizationSuggestions } from './TimeUtilizationSuggestions';
+import { PhilosophySection } from './PhilosophySection';
 
 const MobileTabs = Object.freeze({
     ACTIVITIES: 'activities',
@@ -151,6 +152,7 @@ function Home(props) {
                     )}
                 </View>
             </View>
+            <PhilosophySection />
             <Footer />
             <StatusBar style="auto" />
         </ScrollView>
