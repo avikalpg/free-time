@@ -4,6 +4,12 @@ import { Text, useTheme } from 'react-native-paper';
 import { Footer } from '../../Footer';
 import { StatusBar } from 'expo-status-bar';
 
+export const meta = {
+    eyebrow: 'Time & Planning',
+    title: 'Never Schedule to Zero',
+    summary: 'Why intentional slack in your schedule is one of the most productive things you can build into your week.',
+};
+
 export default function Buffers() {
     const theme = useTheme();
     const styles = makeStyles(theme);

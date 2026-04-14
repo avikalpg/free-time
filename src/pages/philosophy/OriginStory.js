@@ -4,6 +4,12 @@ import { Text, useTheme } from 'react-native-paper';
 import { Footer } from '../../Footer';
 import { StatusBar } from 'expo-status-bar';
 
+export const meta = {
+    eyebrow: 'The Story Behind the Tool',
+    title: 'You Have More Time Than You Think',
+    summary: 'Why this tool was built — the mindset of abundance, and how seeing the numbers changes everything.',
+};
+
 export default function OriginStory() {
     const theme = useTheme();
     const styles = makeStyles(theme);

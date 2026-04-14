@@ -4,6 +4,12 @@ import { Text, useTheme } from 'react-native-paper';
 import { Footer } from '../../Footer';
 import { StatusBar } from 'expo-status-bar';
 
+export const meta = {
+    eyebrow: 'Time & Wellbeing',
+    title: 'Rest Is Not the Absence of Work',
+    summary: 'Why recovery deserves a real place on your calendar — and how ignoring it costs you far more than it saves.',
+};
+
 export default function Recovery() {
     const theme = useTheme();
     const styles = makeStyles(theme);

@@ -4,6 +4,12 @@ import { Text, useTheme } from 'react-native-paper';
 import { Footer } from '../../Footer';
 import { StatusBar } from 'expo-status-bar';
 
+export const meta = {
+    eyebrow: 'Time & Purpose',
+    title: 'Busy Every Day, Going Nowhere',
+    summary: 'Why optimising your days without asking where they lead is the most common form of productive procrastination.',
+};
+
 export default function LifeGoals() {
     const theme = useTheme();
     const styles = makeStyles(theme);

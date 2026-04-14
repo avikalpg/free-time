@@ -4,6 +4,12 @@ import { Text, useTheme } from 'react-native-paper';
 import { Footer } from '../../Footer';
 import { StatusBar } from 'expo-status-bar';
 
+export const meta = {
+    eyebrow: 'Time & Productivity',
+    title: "Free Hours Aren't Enough — You Need Free Blocks",
+    summary: 'Why fragmented time is nearly worthless, and how protecting focus blocks changes what you can actually accomplish.',
+};
+
 export default function FocusTime() {
     const theme = useTheme();
     const styles = makeStyles(theme);
