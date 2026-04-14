@@ -250,9 +250,12 @@ export function TimeUtilizationSuggestions(props) {
         if (selectedProvider && storedProviders.includes(selectedProvider)) {
             // Use relay (Claude or Gemini)
             const messagesForRelay = newHistory.filter(m => m.role === 'user' || m.role === 'ai');
-            // Include schedule context in first user message
-            const contextualMessages = messagesForRelay.map((m, i) => {
-                if (m.role === 'user' && i === 0) {
+            // Include schedule context in the first user message (not index-based — chat
+            // history always starts with intro/AI messages so index 0 is never a user msg)
+            let addedScheduleContext = false;
+            const contextualMessages = messagesForRelay.map((m) => {
+                if (m.role === 'user' && !addedScheduleContext) {
+                    addedScheduleContext = true;
                     return {
                         ...m,
                         content: `${m.content}\n\n[User has ${getDisplayHours(hoursRemaining)} free hours/week. Schedule: ${validActivities.map(a => `${a.name} (${a.hours}h ${a.duration.text})`).join(', ')}]`,

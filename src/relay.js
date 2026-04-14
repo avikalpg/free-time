@@ -94,7 +94,7 @@ const PROVIDER_CONFIGS = {
     anthropic: {
         path: '/v1/messages',
         buildBody: (messages, systemPrompt) => ({
-            model: 'claude-haiku-3-5-20241022',
+            model: 'claude-3-5-haiku-20241022',
             max_tokens: 1024,
             system: systemPrompt,
             messages: messages
@@ -204,6 +204,11 @@ export async function sendRelayMessage(provider, messages, onChunk, onDone, onEr
                 const text = config.parseStreamChunk(line);
                 if (text) onChunk(text);
             }
+        }
+        // Flush any trailing buffer not terminated by newline
+        if (buffer.trim()) {
+            const text = config.parseStreamChunk(buffer.trim());
+            if (text) onChunk(text);
         }
         onDone();
     } catch (e) {
