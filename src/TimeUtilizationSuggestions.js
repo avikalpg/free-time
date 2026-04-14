@@ -1,166 +1,565 @@
 import React from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, ScrollView } from "react-native";
 import Markdown from "react-native-markdown-renderer";
-import { Button, Text, useTheme } from 'react-native-paper';
+import { Button, Text, TextInput, useTheme, IconButton, Menu, Divider } from 'react-native-paper';
 import { calculateRemainingTime, getDisplayHours, validateHours } from "./utils/utils";
+import {
+    storeApiKey, listStoredProviders, deleteApiKey,
+    getSelectedProvider, setSelectedProvider, sendRelayMessage,
+} from "./relay";
+
+// ── Provider definitions ─────────────────────────────────────────────────────
+
+const RELAY_PROVIDERS = [
+    { key: 'anthropic', label: 'Claude (Anthropic)', placeholder: 'sk-ant-...' },
+    { key: 'google', label: 'Gemini (Google)', placeholder: 'AIza...' },
+];
+
+// ── System prompt for in-browser Prompt API ──────────────────────────────────
+
+const SYSTEM_PROMPT_CONTENT = "You are a time management coach. Keep ALL responses to 2-3 sentences maximum. Focus on asking clarifying questions rather than giving prescriptive advice. Be conversational, empathetic, and Socratic. Help users discover insights about their time allocation through guided questions. Never give long lists or detailed plans unless explicitly asked. Always start from the end goal. Your goal is to help the user prioritise the right activities in their life so that they are able to achieve their goal without compromising on interim happiness.";
+
+const INTRO_MESSAGE = "Do you know, we have 168 hours in a week? Most full time jobs demand only 40-48 hours of work in a week. This means that we have almost 3-times as much time in our week as we devote to our full-time jobs.\n\nThe purpose of this tool is gaining self-awareness about the amount of free time you have in your week.";
+const OPENING_QUESTION = "What is the one thing you want to achieve in the next 1 year?";
 
 export function TimeUtilizationSuggestions(props) {
-    const { activities } = props;
-    const validActivities = activities.filter((activity) => validateHours(activity).valid)
+    const { activities, compactMode = false, onChatStart } = props;
+    const validActivities = activities.filter((activity) => validateHours(activity).valid);
 
+    // ── Browser Prompt API state ──────────────────────────────────────────────
     const [promptAISession, setPromptAISession] = React.useState(null);
-    const [hoursRemaining, setHoursRemaining] = React.useState(168);
-    const [aiSuggestion, setAiSuggestion] = React.useState("");
-    const [aiError, setAiError] = React.useState("");
-    const [loadingSuggestions, setLoadingSuggestions] = React.useState(false);
     const [initializingModel, setInitializingModel] = React.useState(false);
 
+    // ── Relay / cloud AI state ────────────────────────────────────────────────
+    const [selectedProvider, setSelectedProviderState] = React.useState(null); // null = use browser
+    const [storedProviders, setStoredProviders] = React.useState([]);
+    const [showApiKeySetup, setShowApiKeySetup] = React.useState(false);
+    const [setupProvider, setSetupProvider] = React.useState(null);
+    const [apiKeyInput, setApiKeyInput] = React.useState('');
+    const [savingKey, setSavingKey] = React.useState(false);
+    const [providerMenuVisible, setProviderMenuVisible] = React.useState(false);
+
+    // ── Shared chat state ─────────────────────────────────────────────────────
+    const [chatHistory, setChatHistory] = React.useState([]);
+    const [followUpMessage, setFollowUpMessage] = React.useState("");
+    const [aiError, setAiError] = React.useState("");
+    const [loadingSuggestions, setLoadingSuggestions] = React.useState(false);
+    const [hoursRemaining, setHoursRemaining] = React.useState(168);
+    const scrollViewRef = React.useRef(null);
+
     const theme = useTheme();
+
+    // ── Styles ────────────────────────────────────────────────────────────────
     const styles = StyleSheet.create({
-        suggestionText: {
-            textAlign: 'left',
-            paddingHorizontal: 20,
-            paddingBottom: 10,
-            paddingTop: 20
+        container: { flex: 1, display: 'flex', flexDirection: 'column', height: '100%' },
+        providerBar: {
+            flexDirection: 'row', alignItems: 'center',
+            paddingHorizontal: 12, paddingVertical: 6,
+            borderBottomWidth: 1, borderBottomColor: '#E0E0E0',
+            backgroundColor: '#FAFAFA',
         },
+        providerLabel: { fontSize: 12, color: '#666', marginRight: 4 },
+        chatContainer: { flex: 1, paddingHorizontal: 12, paddingTop: 8 },
+        messageContainer: {
+            marginVertical: 6, padding: 12, borderRadius: 12, maxWidth: '85%',
+        },
+        userMessage: { alignSelf: 'flex-end', backgroundColor: '#DCF8C6' },
+        aiMessage: { alignSelf: 'flex-start', backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E0E0E0' },
+        introMessage: {
+            alignSelf: 'flex-start', backgroundColor: '#E3F2FD',
+            marginVertical: 6, padding: 12, borderRadius: 12, maxWidth: '95%',
+        },
+        messageLabel: { fontSize: 11, fontWeight: '600', marginBottom: 4, color: theme.colors.primary },
+        messageText: { fontSize: 14, color: '#000000' },
+        introText: { fontSize: 14, color: '#000000', lineHeight: 20 },
+        inputContainer: {
+            flexDirection: 'row', alignItems: 'center',
+            paddingHorizontal: 12, paddingVertical: 12,
+            borderTopWidth: 1, borderTopColor: '#E0E0E0',
+            backgroundColor: '#F5F5F5',
+        },
+        textInput: { flex: 1, marginRight: 8 },
         buttonHelperText: {
-            textAlign: 'center',
-            paddingTop: '5px',
-            color: theme.colors.disabled,
-        }
-    })
-
-    const generateAISuggestion = async (promptAISession, hoursRemaining) => {
-        if (!promptAISession) {
-            setAiError("PromptAPI not found in browser");
-            return;
-        }
-
-        try {
-            setLoadingSuggestions(true);
-            setAiError("");
-            setAiSuggestion(""); // Clear previous suggestion
-            const prompt = `Given ${getDisplayHours(hoursRemaining)} free hours in a week, suggest some meaningful activities or pursuits. The suggestion should be personal, motivating and specific. Here is the list of activities that the user indulges in during the week: ${validActivities.map(activity => `${activity.name} for ${activity.hours} hours ${activity.duration.text}`).join(",")}.`;
-            const stream = await promptAISession.promptStreaming(prompt);
-
-            const reader = stream.getReader();
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) {
-                    setLoadingSuggestions(false);
-                    break; // Exit the loop when the stream is finished
-                }
-                setAiSuggestion(prev => prev + value); // Append to previous suggestion
-            }
-        } catch (error) {
-            console.error("Error generating AI suggestion:", error);
-            setAiError("Error generating AI suggestion")
-            setLoadingSuggestions(false);
-        }
-    };
-
-    // Helper function to create a LanguageModel session config
-    const createSessionConfig = () => ({
-        initialPrompts: [
-            { role: "system", content: "Start by providing feedback about the user's current time commitments. For example, tell them if they are packing their schedule too much or they have more free time than recommended. If the user has a lot of free time or no free time at all, help the user manage their time better through recommendations. Recommendations must strongly align with the activities that the user already indulges in. For example, if the user indulges in business or entrepreneural activities, then providing side hustle recommendations related to their existing hobbies would be well aligned. Respond without judgement or prejudices related to modern ethics and morality but a strong opinion about time management, maximizing focus time & productivity, while minimizing burnout. Output markdown. For each recommendation, provide the estimated amount of time investment required every week." },
-            { role: "user", content: "I am looking for recommendations for things that I can either remove from my weekly schedule (by dropping those activities or outsourcing them to others) or things that I can add to my weekly schedule in order to live a more meaningful life." },
-        ],
-        expectedOutputs: [{ type: "text", languages: ["en"] }]
+            textAlign: 'center', paddingVertical: 4,
+            color: theme.colors.error, fontSize: 12,
+        },
+        uninitializedContainer: {
+            flex: 1, justifyContent: 'center', alignItems: 'center',
+            paddingHorizontal: 20, paddingVertical: 20,
+        },
+        defaultSuggestionText: {
+            textAlign: 'left', paddingHorizontal: 20, paddingBottom: 10, paddingTop: 20,
+        },
+        apiKeySetup: {
+            padding: 16, margin: 12, borderRadius: 12,
+            backgroundColor: '#F5F5F5', borderWidth: 1, borderColor: '#E0E0E0',
+        },
+        apiKeyTitle: { fontSize: 15, fontWeight: '600', marginBottom: 8 },
+        apiKeyHint: { fontSize: 12, color: '#666', marginBottom: 10 },
+        apiKeyRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+        apiKeyInput: { flex: 1 },
+        providerChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 },
     });
 
+    // ── Init: load stored providers and selected provider ─────────────────────
     React.useEffect(() => {
-        if (typeof window === 'undefined' || typeof window.LanguageModel === 'undefined') {
-            setAiError("PromptAPI not found in browser. Don't worry, visit the help section for setting it up.");
-            return;
-        }
-
-        // Try to initialize automatically (works if model is readily available).
-        // If a user gesture is required (downloadable), create() will throw NotAllowedError.
-        const autoInitialize = async () => {
-            try {
-                const session = await window.LanguageModel.create(createSessionConfig());
-                setPromptAISession(session);
-                setAiError("");
-            } catch (error) {
-                if (error && error.name === "NotAllowedError") {
-                    // Needs a user gesture — leave it to the button flow.
-                    setAiError("");
-                } else {
-                    console.error("Error auto-initializing language model:", error);
-                    setAiError("Error initializing language model. Please check the help section.");
-                }
+        const init = async () => {
+            const providers = await listStoredProviders();
+            setStoredProviders(providers);
+            const saved = getSelectedProvider();
+            if (saved && providers.includes(saved)) {
+                setSelectedProviderState(saved);
             }
         };
-        autoInitialize();
-    }, [])
+        init();
 
+        // Also try to init browser Prompt API in background
+        if (typeof window !== 'undefined' && typeof window.LanguageModel !== 'undefined') {
+            window.LanguageModel.create({
+                initialPrompts: [
+                    { role: 'system', content: SYSTEM_PROMPT_CONTENT },
+                    { role: 'user', content: 'I want to ensure that I am spending my time doing the right things.' },
+                ],
+                expectedOutputs: [{ type: 'text', languages: ['en'] }],
+            }).then(session => {
+                setPromptAISession(session);
+            }).catch(err => {
+                if (err?.name !== 'NotAllowedError') {
+                    console.warn('Browser LM auto-init failed:', err?.message);
+                }
+            });
+        }
+    }, []);
+
+    React.useEffect(() => {
+        setHoursRemaining(calculateRemainingTime(validActivities));
+    }, [validActivities]);
+
+    // Populate intro messages when a session is ready
+    React.useEffect(() => {
+        const isReady = selectedProvider ? storedProviders.includes(selectedProvider) : !!promptAISession;
+        if (isReady && chatHistory.length === 0) {
+            setChatHistory([
+                { role: 'intro', content: INTRO_MESSAGE },
+                { role: 'ai', content: OPENING_QUESTION },
+            ]);
+        }
+    }, [promptAISession, selectedProvider, storedProviders]);
+
+    // ── Browser Prompt API initialization ─────────────────────────────────────
     const initializeLanguageModel = async () => {
         if (typeof window === 'undefined' || typeof window.LanguageModel === 'undefined') {
-            setAiError("PromptAPI not found in browser. Don't worry, visit the help section for setting it up.");
+            setAiError("PromptAPI not found. Visit Help to set up Chrome Prompt API, or use Claude/Gemini below.");
             return;
         }
-        if (initializingModel) return; // Prevent concurrent initialization calls
+        if (initializingModel) return;
         try {
             setInitializingModel(true);
             setAiError("Initializing language model...");
-            const config = createSessionConfig();
+            const config = {
+                initialPrompts: [
+                    { role: 'system', content: SYSTEM_PROMPT_CONTENT },
+                    { role: 'user', content: 'I want to ensure that I am spending my time doing the right things.' },
+                ],
+                expectedOutputs: [{ type: 'text', languages: ['en'] }],
+            };
             config.monitor = (m) => {
                 m.addEventListener("downloadprogress", (e) => {
-                    const percentComplete = Math.round((e.loaded / e.total) * 100);
-                    setAiError(`Downloading model... ${percentComplete}%`);
+                    const pct = Math.round((e.loaded / e.total) * 100);
+                    setAiError(`Downloading model... ${pct}%`);
                 });
             };
             const session = await window.LanguageModel.create(config);
             setPromptAISession(session);
             setAiError("");
-        } catch (error) {
-            console.error("Error initializing language model:", error);
+        } catch (err) {
             setAiError("Error initializing language model. Please check the help section.");
         } finally {
             setInitializingModel(false);
         }
     };
 
-    React.useEffect(() => {
-        setHoursRemaining(calculateRemainingTime(validActivities));
-    }, [validActivities])
+    // ── API key setup ─────────────────────────────────────────────────────────
+    const handleSaveApiKey = async () => {
+        if (!setupProvider || !apiKeyInput.trim()) return;
+        setSavingKey(true);
+        try {
+            await storeApiKey(setupProvider, apiKeyInput.trim());
+            const updated = await listStoredProviders();
+            setStoredProviders(updated);
+            setApiKeyInput('');
+            setShowApiKeySetup(false);
+            // Auto-select the newly added provider
+            setSelectedProviderState(setupProvider);
+            setSelectedProvider(setupProvider);
+            setAiError('');
+        } catch (err) {
+            setAiError(`Failed to save key: ${err.message}`);
+        } finally {
+            setSavingKey(false);
+        }
+    };
 
-    const provideRecommendation = async () => {
-        if (!promptAISession) {
-            await initializeLanguageModel();
+    const handleSelectProvider = (providerKey) => {
+        setProviderMenuVisible(false);
+        if (providerKey === 'browser') {
+            setSelectedProviderState(null);
+            setSelectedProvider(null);
+        } else {
+            setSelectedProviderState(providerKey);
+            setSelectedProvider(providerKey);
+        }
+        // Reset chat when switching provider
+        setChatHistory([]);
+    };
+
+    const handleRemoveKey = async (providerKey) => {
+        await deleteApiKey(providerKey);
+        const updated = await listStoredProviders();
+        setStoredProviders(updated);
+        if (selectedProvider === providerKey) {
+            setSelectedProviderState(null);
+            setSelectedProvider(null);
+        }
+    };
+
+    // ── Message sending ───────────────────────────────────────────────────────
+    const sendMessage = async () => {
+        if (!followUpMessage.trim() || loadingSuggestions) return;
+
+        const isReady = selectedProvider
+            ? storedProviders.includes(selectedProvider)
+            : !!promptAISession;
+
+        if (!isReady) {
+            if (!selectedProvider) await initializeLanguageModel();
             return;
         }
-        generateAISuggestion(promptAISession, hoursRemaining);
+
+        const isFirstMessage = chatHistory.length === 2 && chatHistory[0].role === 'intro';
+        if (isFirstMessage && onChatStart) onChatStart();
+
+        const userMsg = followUpMessage.trim();
+        setFollowUpMessage('');
+
+        const newHistory = [...chatHistory, { role: 'user', content: userMsg }];
+        setChatHistory([...newHistory, { role: 'ai', content: '' }]);
+        setLoadingSuggestions(true);
+        setAiError('');
+
+        if (selectedProvider && storedProviders.includes(selectedProvider)) {
+            // Use relay (Claude or Gemini)
+            const messagesForRelay = newHistory.filter(m => m.role === 'user' || m.role === 'ai');
+            // Include schedule context in first user message
+            const contextualMessages = messagesForRelay.map((m, i) => {
+                if (m.role === 'user' && i === 0) {
+                    return {
+                        ...m,
+                        content: `${m.content}\n\n[User has ${getDisplayHours(hoursRemaining)} free hours/week. Schedule: ${validActivities.map(a => `${a.name} (${a.hours}h ${a.duration.text})`).join(', ')}]`,
+                    };
+                }
+                return m;
+            });
+
+            await sendRelayMessage(
+                selectedProvider,
+                contextualMessages,
+                (chunk) => {
+                    setChatHistory(prev => {
+                        const updated = [...prev];
+                        updated[updated.length - 1] = {
+                            role: 'ai',
+                            content: (updated[updated.length - 1].content || '') + chunk,
+                        };
+                        return updated;
+                    });
+                    setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
+                },
+                () => setLoadingSuggestions(false),
+                (err) => { setAiError(err); setLoadingSuggestions(false); }
+            );
+        } else {
+            // Use browser Prompt API
+            try {
+                const contextPrompt = `${userMsg}\n\n[User's schedule: ${validActivities.map(a => `${a.name} for ${a.hours}h ${a.duration.text}`).join(', ')}. Free hours: ${getDisplayHours(hoursRemaining)}/week]`;
+                const stream = await promptAISession.promptStreaming(contextPrompt);
+                const reader = stream.getReader();
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    setChatHistory(prev => {
+                        const updated = [...prev];
+                        updated[updated.length - 1] = {
+                            role: 'ai',
+                            content: (updated[updated.length - 1].content || '') + value,
+                        };
+                        return updated;
+                    });
+                }
+                setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
+                setLoadingSuggestions(false);
+            } catch (err) {
+                setAiError('Error generating response. Please try again.');
+                setLoadingSuggestions(false);
+            }
+        }
+    };
+
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
     };
 
     const getDefaultSuggestion = () => {
         if (hoursRemaining > 40) return "You can take up another full time job.";
         if (hoursRemaining > 20) return "You can probably start a side hustle or a part-time job like Uber driving.";
         if (hoursRemaining > 5) return "You can probably schedule dedicated time to spend with your family, friends or hobbies.";
-        return "Congratulations, you are making the most of your life. But if you are aren't happy, you should probably reassess the importance and priority of some of these activities and remove/outsource the ones that don't give you a lot of joy.";
+        return "Congratulations, you are making the most of your life. But if you aren't happy, you should probably reassess the importance and priority of some of these activities.";
+    };
+
+    const isReady = selectedProvider
+        ? storedProviders.includes(selectedProvider)
+        : !!promptAISession;
+
+    const activeProviderLabel = selectedProvider
+        ? RELAY_PROVIDERS.find(p => p.key === selectedProvider)?.label || selectedProvider
+        : promptAISession ? 'Browser AI' : null;
+
+    // ── Render: uninitialized (no session, no stored key) ─────────────────────
+    if (!isReady && chatHistory.length === 0) {
+        return (
+            <View style={[props.style, styles.container]}>
+                <View style={styles.uninitializedContainer}>
+                    {/* Browser Prompt API option */}
+                    <Button
+                        mode="outlined"
+                        onPress={initializeLanguageModel}
+                        disabled={initializingModel}
+                        loading={initializingModel}
+                        style={{ marginBottom: 8, width: '100%' }}
+                    >
+                        {initializingModel ? 'Initializing...' : 'Use Browser AI (Chrome Prompt API)'}
+                    </Button>
+                    {aiError ? (
+                        <Text style={styles.buttonHelperText}>{aiError}</Text>
+                    ) : null}
+
+                    <Text style={{ textAlign: 'center', color: '#999', marginVertical: 12, fontSize: 13 }}>
+                        — or use your own API key —
+                    </Text>
+
+                    {/* Cloud AI options */}
+                    {showApiKeySetup ? (
+                        <View style={styles.apiKeySetup}>
+                            <Text style={styles.apiKeyTitle}>
+                                Add {RELAY_PROVIDERS.find(p => p.key === setupProvider)?.label} key
+                            </Text>
+                            <Text style={styles.apiKeyHint}>
+                                Your key is stored encrypted on our relay server and never returned.
+                                {'\n'}Get a key: {setupProvider === 'anthropic' ? 'console.anthropic.com' : 'aistudio.google.com'}
+                            </Text>
+                            <View style={styles.apiKeyRow}>
+                                <TextInput
+                                    mode="outlined"
+                                    dense
+                                    placeholder={RELAY_PROVIDERS.find(p => p.key === setupProvider)?.placeholder}
+                                    value={apiKeyInput}
+                                    onChangeText={setApiKeyInput}
+                                    secureTextEntry
+                                    style={styles.apiKeyInput}
+                                    autoFocus
+                                />
+                                <Button
+                                    mode="contained"
+                                    onPress={handleSaveApiKey}
+                                    disabled={savingKey || !apiKeyInput.trim()}
+                                    loading={savingKey}
+                                    compact
+                                >
+                                    Save
+                                </Button>
+                                <Button mode="text" onPress={() => setShowApiKeySetup(false)} compact>
+                                    Cancel
+                                </Button>
+                            </View>
+                        </View>
+                    ) : (
+                        <View style={styles.providerChips}>
+                            {RELAY_PROVIDERS.map(p => (
+                                <Button
+                                    key={p.key}
+                                    mode={storedProviders.includes(p.key) ? 'contained' : 'outlined'}
+                                    onPress={() => {
+                                        if (storedProviders.includes(p.key)) {
+                                            handleSelectProvider(p.key);
+                                        } else {
+                                            setSetupProvider(p.key);
+                                            setShowApiKeySetup(true);
+                                        }
+                                    }}
+                                    compact
+                                >
+                                    {storedProviders.includes(p.key) ? `✓ ${p.label}` : `Add ${p.label}`}
+                                </Button>
+                            ))}
+                        </View>
+                    )}
+
+                    <Divider style={{ width: '100%', marginVertical: 16 }} />
+                    <Text style={styles.defaultSuggestionText}>
+                        <Markdown>{getDefaultSuggestion()}</Markdown>
+                    </Text>
+                </View>
+            </View>
+        );
     }
 
+    // ── Render: chat UI ────────────────────────────────────────────────────────
     return (
-        <View style={props.style}>
-            <Button
-                mode="outlined"
-                onPress={provideRecommendation}
-                disabled={loadingSuggestions || initializingModel}
-                loading={loadingSuggestions || initializingModel}
-            >
-                {promptAISession ? "Generate recommendations" : "Initialize AI Model"}
-            </Button>
-            <Text variant="labelSmall" style={styles.buttonHelperText}>
-                {aiError}
-            </Text>
-            <Text variant="bodyLarge" style={styles.suggestionText}>
-                <Markdown>
-                    {(promptAISession && aiSuggestion) ?
-                        aiSuggestion :
-                        getDefaultSuggestion()
+        <View style={[props.style, styles.container]}>
+            {/* Provider switcher bar */}
+            <View style={styles.providerBar}>
+                <Text style={styles.providerLabel}>AI:</Text>
+                <Menu
+                    visible={providerMenuVisible}
+                    onDismiss={() => setProviderMenuVisible(false)}
+                    anchor={
+                        <Button
+                            mode="text"
+                            compact
+                            onPress={() => setProviderMenuVisible(true)}
+                            icon="chevron-down"
+                        >
+                            {activeProviderLabel || 'Choose AI'}
+                        </Button>
                     }
-                </Markdown>
-            </Text>
+                >
+                    {promptAISession && (
+                        <Menu.Item
+                            onPress={() => handleSelectProvider('browser')}
+                            title="Browser AI (Prompt API)"
+                            leadingIcon={!selectedProvider ? 'check' : undefined}
+                        />
+                    )}
+                    {RELAY_PROVIDERS.map(p => (
+                        <Menu.Item
+                            key={p.key}
+                            onPress={() => {
+                                if (storedProviders.includes(p.key)) {
+                                    handleSelectProvider(p.key);
+                                } else {
+                                    setProviderMenuVisible(false);
+                                    setSetupProvider(p.key);
+                                    setShowApiKeySetup(true);
+                                }
+                            }}
+                            title={storedProviders.includes(p.key) ? `${p.label} ✓` : `${p.label} (add key)`}
+                            leadingIcon={selectedProvider === p.key ? 'check' : undefined}
+                        />
+                    ))}
+                    <Divider />
+                    <Menu.Item
+                        onPress={() => { setProviderMenuVisible(false); setSetupProvider(null); setShowApiKeySetup(true); }}
+                        title="Manage API keys..."
+                        leadingIcon="key"
+                    />
+                </Menu>
+            </View>
+
+            {/* API key setup overlay */}
+            {showApiKeySetup && (
+                <View style={styles.apiKeySetup}>
+                    <Text style={styles.apiKeyTitle}>
+                        {setupProvider
+                            ? `Add ${RELAY_PROVIDERS.find(p => p.key === setupProvider)?.label} key`
+                            : 'Manage API keys'}
+                    </Text>
+                    {setupProvider ? (
+                        <>
+                            <Text style={styles.apiKeyHint}>
+                                Your key is stored encrypted on our relay server.
+                                {'\n'}Get a key: {setupProvider === 'anthropic' ? 'console.anthropic.com' : 'aistudio.google.com'}
+                            </Text>
+                            <View style={styles.apiKeyRow}>
+                                <TextInput
+                                    mode="outlined" dense
+                                    placeholder={RELAY_PROVIDERS.find(p => p.key === setupProvider)?.placeholder}
+                                    value={apiKeyInput}
+                                    onChangeText={setApiKeyInput}
+                                    secureTextEntry
+                                    style={styles.apiKeyInput}
+                                />
+                                <Button mode="contained" onPress={handleSaveApiKey} disabled={savingKey || !apiKeyInput.trim()} loading={savingKey} compact>Save</Button>
+                                <Button mode="text" onPress={() => setShowApiKeySetup(false)} compact>Cancel</Button>
+                            </View>
+                        </>
+                    ) : (
+                        <>
+                            {RELAY_PROVIDERS.filter(p => storedProviders.includes(p.key)).map(p => (
+                                <View key={p.key} style={[styles.apiKeyRow, { marginBottom: 8 }]}>
+                                    <Text style={{ flex: 1 }}>{p.label}</Text>
+                                    <Button mode="text" onPress={() => handleRemoveKey(p.key)} textColor={theme.colors.error} compact>Remove</Button>
+                                </View>
+                            ))}
+                            {storedProviders.length === 0 && <Text style={styles.apiKeyHint}>No keys stored yet.</Text>}
+                            <Button mode="text" onPress={() => setShowApiKeySetup(false)} compact>Close</Button>
+                        </>
+                    )}
+                </View>
+            )}
+
+            {/* Chat messages */}
+            <ScrollView
+                ref={scrollViewRef}
+                style={styles.chatContainer}
+                onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
+            >
+                {chatHistory.map((message, index) => (
+                    <View
+                        key={index}
+                        style={[
+                            message.role === 'intro' ? styles.introMessage : styles.messageContainer,
+                            message.role === 'user' ? styles.userMessage
+                                : message.role === 'ai' ? styles.aiMessage : null,
+                        ]}
+                    >
+                        {message.role !== 'intro' && (
+                            <Text style={styles.messageLabel}>
+                                {message.role === 'user' ? 'You' : 'AI Coach'}
+                            </Text>
+                        )}
+                        <Text style={message.role === 'intro' ? styles.introText : styles.messageText}>
+                            {message.content || '...'}
+                        </Text>
+                    </View>
+                ))}
+            </ScrollView>
+
+            {/* Input */}
+            {aiError ? <Text style={styles.buttonHelperText}>{aiError}</Text> : null}
+            <View style={styles.inputContainer}>
+                <TextInput
+                    placeholder="Type your message..."
+                    value={followUpMessage}
+                    onChangeText={setFollowUpMessage}
+                    mode="outlined"
+                    dense
+                    style={styles.textInput}
+                    onKeyPress={handleKeyPress}
+                    disabled={loadingSuggestions}
+                    multiline
+                    maxLength={500}
+                />
+                <IconButton
+                    icon="send"
+                    mode="contained"
+                    onPress={sendMessage}
+                    disabled={loadingSuggestions || !followUpMessage.trim()}
+                    iconColor={!loadingSuggestions && followUpMessage.trim() ? theme.colors.primary : theme.colors.disabled}
+                />
+            </View>
         </View>
-    )
+    );
 }
