@@ -8,55 +8,78 @@ export function Footer(props) {
     const navigation = useNavigation();
     const theme = useTheme();
 
-    const styles = StyleSheet.create(({
+    const styles = StyleSheet.create({
         footer: {
-            flexDirection: 'row',
             backgroundColor: theme.colors.accent,
-            borderTopWidth: '1px',
+            borderTopWidth: 1,
             borderColor: theme.colors.disabled,
-            color: theme.colors,
-            marginTop: '5em',
+            paddingVertical: 8,
+            paddingHorizontal: 8,
+            marginTop: 80,
+        },
+        linksRow: {
+            flexDirection: 'row',
+            justifyContent: 'center',
+            flexWrap: 'wrap',
+        },
+        copyrightRow: {
+            flexDirection: 'row',
+            justifyContent: 'center',
+            paddingTop: 4,
+            paddingBottom: 4,
         },
         copyright: {
-            height: 'auto',
+            fontSize: 12,
+            color: theme.colors.placeholder,
             alignSelf: 'center',
-            flexGrow: 1,
-            marginHorizontal: '1em'
         },
-    }))
+    });
 
-    const Copyright = () => {
-        return (
-            <Text style={styles.copyright}>
-                {'© '}
-                <Text onPress={openURL("https://github.com/avikalpg")} >
-                    Avikalp Gupta
-                </Text >{' '}
-                {new Date().getFullYear()}
+    const Copyright = () => (
+        <Text style={styles.copyright}>
+            {'© '}
+            <Text
+                style={[styles.copyright, { textDecorationLine: 'underline' }]}
+                onPress={openURL("https://github.com/avikalpg")}
+            >
+                Avikalp Gupta
             </Text>
-        );
-    }
+            {' '}{new Date().getFullYear()}
+        </Text>
+    );
 
     return (
         <View style={styles.footer}>
-            <Copyright />
-            <Button
-                mode="text"
-                icon="github"
-                onPress={openURL("https://github.com/avikalpg/free-time")}
-                color={theme.colors.text}
-                uppercase={false}
-                compact>
-                Contribute
-            </Button>
-            <Button
-                mode='text'
-                onPress={() => navigation.navigate('PrivacyPolicy')}
-                color={theme.colors.text}
-                uppercase={false}
-            >
-                Privacy Policy
-            </Button>
+            <View style={styles.linksRow}>
+                <Button
+                    mode="text"
+                    icon="github"
+                    onPress={openURL("https://github.com/avikalpg/free-time")}
+                    color={theme.colors.text}
+                    uppercase={false}
+                    compact>
+                    Contribute
+                </Button>
+                <Button
+                    mode='text'
+                    onPress={() => navigation.navigate('Philosophy')}
+                    color={theme.colors.text}
+                    uppercase={false}
+                    compact>
+                    Philosophy
+                </Button>
+                <Button
+                    mode='text'
+                    onPress={() => navigation.navigate('PrivacyPolicy')}
+                    color={theme.colors.text}
+                    uppercase={false}
+                    compact>
+                    Privacy Policy
+                </Button>
+            </View>
+            <View style={styles.copyrightRow}>
+                <Copyright />
+            </View>
         </View>
-    )
+    );
 }
