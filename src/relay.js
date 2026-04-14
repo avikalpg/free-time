@@ -119,7 +119,7 @@ const PROVIDER_CONFIGS = {
 
     google: {
         // The relay server appends ?alt=sse&key=... for streaming
-        path: '/v1beta/models/gemini-2.0-flash:streamGenerateContent',
+        path: '/v1beta/models/gemini-2.5-flash:streamGenerateContent',
         buildBody: (messages, systemPrompt) => ({
             system_instruction: { parts: [{ text: systemPrompt }] },
             contents: messages
