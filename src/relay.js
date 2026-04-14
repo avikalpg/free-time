@@ -118,6 +118,7 @@ const PROVIDER_CONFIGS = {
     },
 
     google: {
+        // The relay server appends ?alt=sse&key=... for streaming
         path: '/v1beta/models/gemini-2.0-flash:streamGenerateContent',
         buildBody: (messages, systemPrompt) => ({
             system_instruction: { parts: [{ text: systemPrompt }] },
@@ -130,7 +131,7 @@ const PROVIDER_CONFIGS = {
             generationConfig: { maxOutputTokens: 1024 },
         }),
         buildHeaders: () => ({}),
-        // Gemini returns a JSON array of events, not SSE
+        // With alt=sse, each event is: data: <json>\n\n
         parseStreamChunk: (line) => {
             if (!line.startsWith('data: ')) return null;
             const data = line.slice(6).trim();
