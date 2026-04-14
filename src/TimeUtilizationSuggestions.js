@@ -13,6 +13,7 @@ export function TimeUtilizationSuggestions(props) {
     const [aiSuggestion, setAiSuggestion] = React.useState("");
     const [aiError, setAiError] = React.useState("");
     const [loadingSuggestions, setLoadingSuggestions] = React.useState(false);
+    const [initializingModel, setInitializingModel] = React.useState(false);
 
     const theme = useTheme();
     const styles = StyleSheet.create({
@@ -98,7 +99,9 @@ export function TimeUtilizationSuggestions(props) {
             setAiError("PromptAPI not found in browser. Don't worry, visit the help section for setting it up.");
             return;
         }
+        if (initializingModel) return; // Prevent concurrent initialization calls
         try {
+            setInitializingModel(true);
             setAiError("Initializing language model...");
             const config = createSessionConfig();
             config.monitor = (m) => {
@@ -113,6 +116,8 @@ export function TimeUtilizationSuggestions(props) {
         } catch (error) {
             console.error("Error initializing language model:", error);
             setAiError("Error initializing language model. Please check the help section.");
+        } finally {
+            setInitializingModel(false);
         }
     };
 
@@ -140,8 +145,8 @@ export function TimeUtilizationSuggestions(props) {
             <Button
                 mode="outlined"
                 onPress={provideRecommendation}
-                disabled={loadingSuggestions}
-                loading={loadingSuggestions}
+                disabled={loadingSuggestions || initializingModel}
+                loading={loadingSuggestions || initializingModel}
             >
                 {promptAISession ? "Generate recommendations" : "Initialize AI Model"}
             </Button>
