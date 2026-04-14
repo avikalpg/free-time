@@ -15,7 +15,7 @@ export function Footer(props) {
             borderColor: theme.colors.disabled,
             paddingVertical: 8,
             paddingHorizontal: 8,
-            marginTop: '5em',
+            marginTop: 80,
         },
         linksRow: {
             flexDirection: 'row',

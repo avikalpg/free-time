@@ -6,13 +6,18 @@ import { PHILOSOPHY_ROUTES } from './routes';
 import { Footer } from '../../Footer';
 import { StatusBar } from 'expo-status-bar';
 
-// Derive article list from the registry — filter out the index page itself
-const ARTICLES = PHILOSOPHY_ROUTES.filter((r) => r.eyebrow !== null);
-
 export default function PhilosophyIndex() {
     const theme = useTheme();
     const navigation = useNavigation();
     const styles = makeStyles(theme);
+
+    // Computed inside the component to avoid circular import initialization issues.
+    // routes.js imports this component, so top-level access to PHILOSOPHY_ROUTES
+    // can fail before the module finishes initializing.
+    const articles = React.useMemo(
+        () => PHILOSOPHY_ROUTES.filter((r) => r.eyebrow !== null),
+        []
+    );
 
     return (
         <ScrollView contentContainerStyle={{ minHeight: '100%' }}>
@@ -22,7 +27,7 @@ export default function PhilosophyIndex() {
                     Essays on time, attention, and the art of living intentionally.
                 </Text>
                 <Divider style={styles.divider} />
-                {ARTICLES.map((article, index) => (
+                {articles.map((article, index) => (
                     <TouchableOpacity
                         key={article.name}
                         onPress={() => navigation.navigate(article.name)}
@@ -32,7 +37,7 @@ export default function PhilosophyIndex() {
                         <Text style={styles.cardEyebrow}>{article.eyebrow}</Text>
                         <Text style={styles.cardTitle}>{article.title}</Text>
                         <Text style={styles.cardSummary}>{article.summary}</Text>
-                        {index < ARTICLES.length - 1 && <Divider style={styles.cardDivider} />}
+                        {index < articles.length - 1 && <Divider style={styles.cardDivider} />}
                     </TouchableOpacity>
                 ))}
             </View>
