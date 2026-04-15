@@ -193,7 +193,11 @@ export async function sendRelayMessage(provider, messages, onChunk, onDone, onEr
 
         if (!res.ok) {
             const err = await res.json().catch(() => ({}));
-            onError(err.error || `AI request failed (${res.status})`);
+            // err.error may be a string (relay error) or object (provider error passthrough)
+            const msg = typeof err.error === 'string'
+                ? err.error
+                : err.error?.message || `AI request failed (${res.status})`;
+            onError(msg);
             return;
         }
 
