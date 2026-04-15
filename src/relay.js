@@ -111,8 +111,9 @@ const PROVIDER_CONFIGS = {
         path: '/v1/messages',
         buildBody: (messages, systemPrompt) => ({
             model: MODEL_ANTHROPIC,
-            // Set high — length is controlled via system prompt guideline, not hard cutoff.
-            max_tokens: 8192,
+            // No hard limit — length is controlled via system prompt guideline.
+            // Claude Haiku is not a thinking model so no separate token budget needed.
+            max_tokens: 65536,
             system: systemPrompt,
             messages: messages
                 .filter(m => m.role === 'user' || m.role === 'assistant')
@@ -146,12 +147,9 @@ const PROVIDER_CONFIGS = {
                     parts: [{ text: m.content }],
                 })),
             generationConfig: {
-                // maxOutputTokens applies only to visible output — thinking tokens are
-                // separate when thinkingBudget is explicitly set. Set high so the model
-                // can always complete a sentence; length is controlled via system prompt.
-                maxOutputTokens: 8192,
-                // No thinking budget cap — let the model reason as deeply as needed.
-                // For life/goal coaching, quality of insight matters more than latency.
+                // No token cap — length controlled via system prompt guideline.
+                // Gemini 2.5 Flash thinking tokens are allocated automatically;
+                // without thinkingBudget set, the model reasons as deeply as it needs to.
             },
         }),
         buildHeaders: () => ({}),
