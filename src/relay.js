@@ -116,7 +116,8 @@ const PROVIDER_CONFIGS = {
         path: '/v1/messages',
         buildBody: (messages, systemPrompt) => ({
             model: MODEL_ANTHROPIC,
-            max_tokens: 1024,
+            // No hard limit — length controlled via system prompt guideline.
+            max_tokens: 65536,
             system: systemPrompt,
             messages: messages
                 .filter(m => m.role === 'user' || m.role === 'assistant')
@@ -149,7 +150,7 @@ const PROVIDER_CONFIGS = {
                     role: m.role === 'assistant' ? 'model' : 'user',
                     parts: [{ text: m.content }],
                 })),
-            generationConfig: { maxOutputTokens: 1024 },
+            generationConfig: {},
         }),
         buildHeaders: () => ({}),
         // With alt=sse, each event is: data: <json>\n\n
