@@ -176,6 +176,10 @@ export async function sendRelayMessage(provider, messages, onChunk, onDone, onEr
         onError('Could not connect to relay. Check your internet connection.');
         return;
     }
+    if (!token) {
+        onError('Storage not available (localStorage missing — web only)');
+        return;
+    }
 
     const body = config.buildBody(messages, SYSTEM_PROMPT);
     const extraHeaders = config.buildHeaders();
