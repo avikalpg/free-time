@@ -6,6 +6,7 @@ import { calculateRemainingTime, getDisplayHours, validateHours } from "./utils/
 import {
     storeApiKey, listStoredProviders, deleteApiKey,
     getSelectedProvider, setSelectedProvider, sendRelayMessage,
+    TIME_COACH_SYSTEM_PROMPT,
 } from "./relay";
 
 // ── Provider definitions ─────────────────────────────────────────────────────
@@ -15,12 +16,60 @@ const RELAY_PROVIDERS = [
     { key: 'google', label: 'Gemini (Google)', placeholder: 'AIza...' },
 ];
 
-// ── System prompt for in-browser Prompt API ──────────────────────────────────
+// ── System prompt — shared with relay backend (imported from relay.js) ───────
 
-const SYSTEM_PROMPT_CONTENT = "You are a time management coach. Keep ALL responses to 2-3 sentences maximum. Focus on asking clarifying questions rather than giving prescriptive advice. Be conversational, empathetic, and Socratic. Help users discover insights about their time allocation through guided questions. Never give long lists or detailed plans unless explicitly asked. Always start from the end goal. Your goal is to help the user prioritise the right activities in their life so that they are able to achieve their goal without compromising on interim happiness.";
+const SYSTEM_PROMPT_CONTENT = TIME_COACH_SYSTEM_PROMPT;
 
 const INTRO_MESSAGE = "Do you know, we have 168 hours in a week? Most full time jobs demand only 40-48 hours of work in a week. This means that we have almost 3-times as much time in our week as we devote to our full-time jobs.\n\nThe purpose of this tool is gaining self-awareness about the amount of free time you have in your week.";
 const OPENING_QUESTION = "What is the one thing you want to achieve in the next 1 year?";
+
+// ── Shared API key setup panel (used in both uninitialized + chat views) ─────
+function ApiKeySetupPanel({
+    setupProvider, storedProviders, apiKeyInput, savingKey,
+    onChangeText, onSave, onRemove, onClose, autoFocus = false, styles, theme,
+}) {
+    const provider = RELAY_PROVIDERS.find(p => p.key === setupProvider);
+    return (
+        <View style={styles.apiKeySetup}>
+            <Text style={styles.apiKeyTitle}>
+                {provider ? `Add ${provider.label} key` : 'Manage API keys'}
+            </Text>
+            {provider ? (
+                <>
+                    <Text style={styles.apiKeyHint}>
+                        Your key is stored encrypted on our relay server and never returned.
+                        {'\n'}Get a key: {setupProvider === 'anthropic' ? 'console.anthropic.com' : 'aistudio.google.com'}
+                    </Text>
+                    <View style={styles.apiKeyRow}>
+                        <TextInput
+                            mode="outlined"
+                            dense
+                            placeholder={provider.placeholder}
+                            value={apiKeyInput}
+                            onChangeText={onChangeText}
+                            secureTextEntry
+                            style={styles.apiKeyInput}
+                            autoFocus={autoFocus}
+                        />
+                        <Button mode="contained" onPress={onSave} disabled={savingKey || !apiKeyInput.trim()} loading={savingKey} compact>Save</Button>
+                        <Button mode="text" onPress={onClose} compact>Cancel</Button>
+                    </View>
+                </>
+            ) : (
+                <>
+                    {RELAY_PROVIDERS.filter(p => storedProviders.includes(p.key)).map(p => (
+                        <View key={p.key} style={[styles.apiKeyRow, { marginBottom: 8 }]}>
+                            <Text style={{ flex: 1 }}>{p.label}</Text>
+                            <Button mode="text" onPress={() => onRemove(p.key)} textColor={theme.colors.error} compact>Remove</Button>
+                        </View>
+                    ))}
+                    {storedProviders.length === 0 && <Text style={styles.apiKeyHint}>No keys stored yet.</Text>}
+                    <Button mode="text" onPress={onClose} compact>Close</Button>
+                </>
+            )}
+        </View>
+    );
+}
 
 export function TimeUtilizationSuggestions(props) {
     const { activities, compactMode = false, onChatStart } = props;
@@ -355,39 +404,19 @@ export function TimeUtilizationSuggestions(props) {
 
                     {/* Cloud AI options */}
                     {showApiKeySetup ? (
-                        <View style={styles.apiKeySetup}>
-                            <Text style={styles.apiKeyTitle}>
-                                Add {RELAY_PROVIDERS.find(p => p.key === setupProvider)?.label} key
-                            </Text>
-                            <Text style={styles.apiKeyHint}>
-                                Your key is stored encrypted on our relay server and never returned.
-                                {'\n'}Get a key: {setupProvider === 'anthropic' ? 'console.anthropic.com' : 'aistudio.google.com'}
-                            </Text>
-                            <View style={styles.apiKeyRow}>
-                                <TextInput
-                                    mode="outlined"
-                                    dense
-                                    placeholder={RELAY_PROVIDERS.find(p => p.key === setupProvider)?.placeholder}
-                                    value={apiKeyInput}
-                                    onChangeText={setApiKeyInput}
-                                    secureTextEntry
-                                    style={styles.apiKeyInput}
-                                    autoFocus
-                                />
-                                <Button
-                                    mode="contained"
-                                    onPress={handleSaveApiKey}
-                                    disabled={savingKey || !apiKeyInput.trim()}
-                                    loading={savingKey}
-                                    compact
-                                >
-                                    Save
-                                </Button>
-                                <Button mode="text" onPress={() => setShowApiKeySetup(false)} compact>
-                                    Cancel
-                                </Button>
-                            </View>
-                        </View>
+                        <ApiKeySetupPanel
+                            setupProvider={setupProvider}
+                            storedProviders={storedProviders}
+                            apiKeyInput={apiKeyInput}
+                            savingKey={savingKey}
+                            onChangeText={setApiKeyInput}
+                            onSave={handleSaveApiKey}
+                            onRemove={handleRemoveKey}
+                            onClose={() => setShowApiKeySetup(false)}
+                            autoFocus
+                            styles={styles}
+                            theme={theme}
+                        />
                     ) : (
                         <View style={styles.providerChips}>
                             {RELAY_PROVIDERS.map(p => (
@@ -473,44 +502,18 @@ export function TimeUtilizationSuggestions(props) {
 
             {/* API key setup overlay */}
             {showApiKeySetup && (
-                <View style={styles.apiKeySetup}>
-                    <Text style={styles.apiKeyTitle}>
-                        {setupProvider
-                            ? `Add ${RELAY_PROVIDERS.find(p => p.key === setupProvider)?.label} key`
-                            : 'Manage API keys'}
-                    </Text>
-                    {setupProvider ? (
-                        <>
-                            <Text style={styles.apiKeyHint}>
-                                Your key is stored encrypted on our relay server.
-                                {'\n'}Get a key: {setupProvider === 'anthropic' ? 'console.anthropic.com' : 'aistudio.google.com'}
-                            </Text>
-                            <View style={styles.apiKeyRow}>
-                                <TextInput
-                                    mode="outlined" dense
-                                    placeholder={RELAY_PROVIDERS.find(p => p.key === setupProvider)?.placeholder}
-                                    value={apiKeyInput}
-                                    onChangeText={setApiKeyInput}
-                                    secureTextEntry
-                                    style={styles.apiKeyInput}
-                                />
-                                <Button mode="contained" onPress={handleSaveApiKey} disabled={savingKey || !apiKeyInput.trim()} loading={savingKey} compact>Save</Button>
-                                <Button mode="text" onPress={() => setShowApiKeySetup(false)} compact>Cancel</Button>
-                            </View>
-                        </>
-                    ) : (
-                        <>
-                            {RELAY_PROVIDERS.filter(p => storedProviders.includes(p.key)).map(p => (
-                                <View key={p.key} style={[styles.apiKeyRow, { marginBottom: 8 }]}>
-                                    <Text style={{ flex: 1 }}>{p.label}</Text>
-                                    <Button mode="text" onPress={() => handleRemoveKey(p.key)} textColor={theme.colors.error} compact>Remove</Button>
-                                </View>
-                            ))}
-                            {storedProviders.length === 0 && <Text style={styles.apiKeyHint}>No keys stored yet.</Text>}
-                            <Button mode="text" onPress={() => setShowApiKeySetup(false)} compact>Close</Button>
-                        </>
-                    )}
-                </View>
+                <ApiKeySetupPanel
+                    setupProvider={setupProvider}
+                    storedProviders={storedProviders}
+                    apiKeyInput={apiKeyInput}
+                    savingKey={savingKey}
+                    onChangeText={setApiKeyInput}
+                    onSave={handleSaveApiKey}
+                    onRemove={handleRemoveKey}
+                    onClose={() => setShowApiKeySetup(false)}
+                    styles={styles}
+                    theme={theme}
+                />
             )}
 
             {/* Chat messages */}
