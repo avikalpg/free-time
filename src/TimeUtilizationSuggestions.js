@@ -364,7 +364,22 @@ export function TimeUtilizationSuggestions(props) {
                     });
                     setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
                 },
-                () => setLoadingSuggestions(false),
+                () => {
+                    // Split on --- delimiter to render multi-message responses
+                    setChatHistory(prev => {
+                        const last = prev[prev.length - 1];
+                        if (!last || last.role !== 'ai') return prev;
+                        const parts = last.content
+                            .split(/\n---\n/)
+                            .map(p => p.trim())
+                            .filter(p => p.length > 0);
+                        if (parts.length <= 1) return prev;
+                        // Replace last bubble with multiple bubbles
+                        const rest = prev.slice(0, -1);
+                        return [...rest, ...parts.map(p => ({ role: 'ai', content: p }))];
+                    });
+                    setLoadingSuggestions(false);
+                },
                 (err) => { setAiError(err); setLoadingSuggestions(false); }
             );
         } else {
