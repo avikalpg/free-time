@@ -1,8 +1,8 @@
 import React from "react";
-import { StyleSheet, View, ScrollView, Animated } from "react-native";
+import { StyleSheet, View, ScrollView } from "react-native";
 import Markdown from "react-native-markdown-renderer";
 import { Button, Text, TextInput, useTheme, IconButton, Menu, Divider } from 'react-native-paper';
-import { calculateRemainingTime, getDisplayHours, validateHours } from "./utils/utils";
+import { calculateRemainingTime, getDisplayHours, validateHours, runScheduleSimulation } from "./utils/utils";
 import {
     storeApiKey, listStoredProviders, deleteApiKey,
     getSelectedProvider, setSelectedProvider, sendRelayMessage,
@@ -22,43 +22,6 @@ const SYSTEM_PROMPT_CONTENT = TIME_COACH_SYSTEM_PROMPT;
 
 const INTRO_MESSAGE = "Do you know, we have 168 hours in a week? Most full time jobs demand only 40-48 hours of work in a week. This means that we have almost 3-times as much time in our week as we devote to our full-time jobs.\n\nThe purpose of this tool is gaining self-awareness about the amount of free time you have in your week.";
 const OPENING_QUESTION = "What is the one thing you want to achieve in the next 1 year?";
-
-// ── Typing indicator — animated dots shown while AI is thinking ───────────────
-function TypingIndicator() {
-    const dot1 = React.useRef(new Animated.Value(0)).current;
-    const dot2 = React.useRef(new Animated.Value(0)).current;
-    const dot3 = React.useRef(new Animated.Value(0)).current;
-
-    React.useEffect(() => {
-        const pulse = (dot, delay) => Animated.loop(
-            Animated.sequence([
-                Animated.delay(delay),
-                Animated.timing(dot, { toValue: 1, duration: 300, useNativeDriver: true }),
-                Animated.timing(dot, { toValue: 0, duration: 300, useNativeDriver: true }),
-                Animated.delay(600),
-            ])
-        ).start();
-        pulse(dot1, 0);
-        pulse(dot2, 200);
-        pulse(dot3, 400);
-        return () => { dot1.stopAnimation(); dot2.stopAnimation(); dot3.stopAnimation(); };
-    }, []);
-
-    const dotStyle = (anim) => ({
-        width: 7, height: 7, borderRadius: 4,
-        backgroundColor: '#888', marginHorizontal: 2,
-        opacity: anim,
-        transform: [{ translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [0, -4] }) }],
-    });
-
-    return (
-        <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 4 }}>
-            <Animated.View style={dotStyle(dot1)} />
-            <Animated.View style={dotStyle(dot2)} />
-            <Animated.View style={dotStyle(dot3)} />
-        </View>
-    );
-}
 
 // ── Shared API key setup panel (used in both uninitialized + chat views) ─────
 function ApiKeySetupPanel({
@@ -158,6 +121,13 @@ export function TimeUtilizationSuggestions(props) {
         messageLabel: { fontSize: 11, fontWeight: '600', marginBottom: 4, color: theme.colors.primary },
         messageText: { fontSize: 14, color: '#000000' },
         introText: { fontSize: 14, color: '#000000', lineHeight: 20 },
+        simResultContainer: {
+            alignSelf: 'stretch', marginVertical: 4, marginHorizontal: 8,
+            backgroundColor: '#F0F4FF', borderRadius: 8, padding: 10,
+            borderLeftWidth: 3, borderLeftColor: '#6366F1',
+        },
+        simResultLabel: { fontSize: 11, fontWeight: '700', color: '#6366F1', marginBottom: 4 },
+        simResultText: { fontSize: 13, color: '#374151', lineHeight: 18 },
         inputContainer: {
             flexDirection: 'row', alignItems: 'center',
             paddingHorizontal: 12, paddingVertical: 12,
@@ -335,11 +305,16 @@ export function TimeUtilizationSuggestions(props) {
 
         if (selectedProvider && storedProviders.includes(selectedProvider)) {
             // Use relay (Claude or Gemini)
-            const messagesForRelay = newHistory.filter(m => m.role === 'user' || m.role === 'ai');
+            // Include system-sim messages so the model sees simulation results in context
+            const messagesForRelay = newHistory.filter(m => m.role === 'user' || m.role === 'ai' || m.role === 'system-sim');
             // Include schedule context in the first user message (not index-based — chat
             // history always starts with intro/AI messages so index 0 is never a user msg)
             let addedScheduleContext = false;
             const contextualMessages = messagesForRelay.map((m) => {
+                if (m.role === 'system-sim') {
+                    // Simulation results appear as user-role messages so the model can react
+                    return { role: 'user', content: m.content };
+                }
                 if (m.role === 'user' && !addedScheduleContext) {
                     addedScheduleContext = true;
                     return {
@@ -365,16 +340,35 @@ export function TimeUtilizationSuggestions(props) {
                     setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
                 },
                 () => {
-                    // Split on --- delimiter to render multi-message responses
                     setChatHistory(prev => {
                         const last = prev[prev.length - 1];
                         if (!last || last.role !== 'ai') return prev;
+
+                        // Check for [SIMULATE:] tool call anywhere in the response
+                        const simResult = runScheduleSimulation(last.content);
+                        if (simResult) {
+                            // Remove the [SIMULATE:...] tag from the visible text
+                            const visibleContent = last.content.replace(simResult.rawTag, '').replace(/\n{3,}/g, '\n\n').trim();
+                            const rest = prev.slice(0, -1);
+                            const bubbles = visibleContent
+                                ? [{ role: 'ai', content: visibleContent }]
+                                : [];
+                            // Inject simulation result as a system message the coach will see next turn
+                            const systemMsg = {
+                                role: 'system-sim',
+                                content: simResult.error
+                                    ? `[Simulation error: ${simResult.error}]`
+                                    : `[${simResult.summary}]`,
+                            };
+                            return [...rest, ...bubbles, systemMsg];
+                        }
+
+                        // Otherwise handle --- multi-message split
                         const parts = last.content
                             .split(/\n---\n/)
                             .map(p => p.trim())
                             .filter(p => p.length > 0);
                         if (parts.length <= 1) return prev;
-                        // Replace last bubble with multiple bubbles
                         const rest = prev.slice(0, -1);
                         return [...rest, ...parts.map(p => ({ role: 'ai', content: p }))];
                     });
@@ -574,28 +568,38 @@ export function TimeUtilizationSuggestions(props) {
                 style={styles.chatContainer}
                 onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
             >
-                {chatHistory.map((message, index) => (
-                    <View
-                        key={index}
-                        style={[
-                            message.role === 'intro' ? styles.introMessage : styles.messageContainer,
-                            message.role === 'user' ? styles.userMessage
-                                : message.role === 'ai' ? styles.aiMessage : null,
-                        ]}
-                    >
-                        {message.role !== 'intro' && (
-                            <Text style={styles.messageLabel}>
-                                {message.role === 'user' ? 'You' : 'AI Coach'}
-                            </Text>
-                        )}
-                        {message.role === 'ai' && !message.content
-                            ? <TypingIndicator />
-                            : <Text style={message.role === 'intro' ? styles.introText : styles.messageText}>
-                                {message.content}
-                              </Text>
-                        }
-                    </View>
-                ))}
+                {chatHistory.map((message, index) => {
+                    if (message.role === 'system-sim') {
+                        return (
+                            <View key={index} style={styles.simResultContainer}>
+                                <Text style={styles.simResultLabel}>🧮 Schedule Simulation</Text>
+                                <Text style={styles.simResultText}>{message.content}</Text>
+                            </View>
+                        );
+                    }
+                    return (
+                        <View
+                            key={index}
+                            style={[
+                                message.role === 'intro' ? styles.introMessage : styles.messageContainer,
+                                message.role === 'user' ? styles.userMessage
+                                    : message.role === 'ai' ? styles.aiMessage : null,
+                            ]}
+                        >
+                            {message.role !== 'intro' && (
+                                <Text style={styles.messageLabel}>
+                                    {message.role === 'user' ? 'You' : 'AI Coach'}
+                                </Text>
+                            )}
+                            {message.role === 'ai' && !message.content
+                                ? <View style={{paddingVertical: 4}}><Text style={styles.messageText}>...</Text></View>
+                                : <Text style={message.role === 'intro' ? styles.introText : styles.messageText}>
+                                    {message.content}
+                                  </Text>
+                            }
+                        </View>
+                    );
+                })}
             </ScrollView>
 
             {/* Input */}
