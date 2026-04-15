@@ -116,8 +116,7 @@ const PROVIDER_CONFIGS = {
         path: '/v1/messages',
         buildBody: (messages, systemPrompt) => ({
             model: MODEL_ANTHROPIC,
-            // No hard limit — length is controlled via system prompt guideline.
-            // Claude Haiku is not a thinking model so no separate token budget needed.
+            // No hard limit — length controlled via system prompt guideline.
             max_tokens: 65536,
             system: systemPrompt,
             messages: messages
