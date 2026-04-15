@@ -53,10 +53,13 @@ export const validateHours = (activity) => {
  * Returns null if no valid SIMULATE tag found, or a result object.
  */
 export function runScheduleSimulation(text) {
-    const match = text.match(/\[SIMULATE:\s*([^\]]+)\]/i);
+    // Only match when the tag is on its own line to avoid false positives on
+    // explanatory text that mentions the tag format (e.g. in the system prompt)
+    const match = text.match(/^\s*\[SIMULATE:\s*([^\]]+)\]\s*$/im);
     if (!match) return null;
 
     const entries = match[1].split(',').map(s => s.trim()).filter(Boolean);
+    if (entries.length === 0) return { error: 'No activities provided in SIMULATE tag', rawTag: match[0] };
     const activities = [];
     let parseError = null;
 

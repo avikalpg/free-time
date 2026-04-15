@@ -280,6 +280,36 @@ export function TimeUtilizationSuggestions(props) {
     };
 
     // ── Message sending ───────────────────────────────────────────────────────
+    // Post-process the last AI bubble: handle [SIMULATE:] tags and --- multi-message splits.
+    // Called by both relay onDone and browser Prompt API completion.
+    const processAiResponse = React.useCallback(() => {
+        setChatHistory(prev => {
+            const last = prev[prev.length - 1];
+            if (!last || last.role !== 'ai') return prev;
+
+            // Check for [SIMULATE:] tool call (must be on its own line)
+            const simResult = runScheduleSimulation(last.content);
+            if (simResult) {
+                const visibleContent = last.content.replace(simResult.rawTag, '').replace(/\n{3,}/g, '\n\n').trim();
+                const rest = prev.slice(0, -1);
+                const bubbles = visibleContent ? [{ role: 'ai', content: visibleContent }] : [];
+                const systemMsg = {
+                    role: 'system-sim',
+                    content: simResult.error
+                        ? `[Simulation error: ${simResult.error}]`
+                        : `[${simResult.summary}]`,
+                };
+                return [...rest, ...bubbles, systemMsg];
+            }
+
+            // Handle --- multi-message split
+            const parts = last.content.split(/\n---\n/).map(p => p.trim()).filter(p => p.length > 0);
+            if (parts.length <= 1) return prev;
+            const rest = prev.slice(0, -1);
+            return [...rest, ...parts.map(p => ({ role: 'ai', content: p }))];
+        });
+    }, []);
+
     const sendMessage = async () => {
         if (!followUpMessage.trim() || loadingSuggestions) return;
 
@@ -339,41 +369,7 @@ export function TimeUtilizationSuggestions(props) {
                     });
                     setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
                 },
-                () => {
-                    setChatHistory(prev => {
-                        const last = prev[prev.length - 1];
-                        if (!last || last.role !== 'ai') return prev;
-
-                        // Check for [SIMULATE:] tool call anywhere in the response
-                        const simResult = runScheduleSimulation(last.content);
-                        if (simResult) {
-                            // Remove the [SIMULATE:...] tag from the visible text
-                            const visibleContent = last.content.replace(simResult.rawTag, '').replace(/\n{3,}/g, '\n\n').trim();
-                            const rest = prev.slice(0, -1);
-                            const bubbles = visibleContent
-                                ? [{ role: 'ai', content: visibleContent }]
-                                : [];
-                            // Inject simulation result as a system message the coach will see next turn
-                            const systemMsg = {
-                                role: 'system-sim',
-                                content: simResult.error
-                                    ? `[Simulation error: ${simResult.error}]`
-                                    : `[${simResult.summary}]`,
-                            };
-                            return [...rest, ...bubbles, systemMsg];
-                        }
-
-                        // Otherwise handle --- multi-message split
-                        const parts = last.content
-                            .split(/\n---\n/)
-                            .map(p => p.trim())
-                            .filter(p => p.length > 0);
-                        if (parts.length <= 1) return prev;
-                        const rest = prev.slice(0, -1);
-                        return [...rest, ...parts.map(p => ({ role: 'ai', content: p }))];
-                    });
-                    setLoadingSuggestions(false);
-                },
+                () => { processAiResponse(); setLoadingSuggestions(false); },
                 (err) => { setAiError(err); setLoadingSuggestions(false); }
             );
         } else {
@@ -394,6 +390,8 @@ export function TimeUtilizationSuggestions(props) {
                         return updated;
                     });
                 }
+                // Apply same post-processing as relay path (SIMULATE tags + --- splitting)
+                processAiResponse();
                 setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
                 setLoadingSuggestions(false);
             } catch (err) {
