@@ -150,7 +150,8 @@ const PROVIDER_CONFIGS = {
                 // separate when thinkingBudget is explicitly set. Set high so the model
                 // can always complete a sentence; length is controlled via system prompt.
                 maxOutputTokens: 8192,
-                thinkingConfig: { thinkingBudget: 8192 },
+                // No thinking budget cap — let the model reason as deeply as needed.
+                // For life/goal coaching, quality of insight matters more than latency.
             },
         }),
         buildHeaders: () => ({}),
