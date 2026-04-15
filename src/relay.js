@@ -106,7 +106,7 @@ const PROVIDER_CONFIGS = {
         path: '/v1/messages',
         buildBody: (messages, systemPrompt) => ({
             model: MODEL_ANTHROPIC,
-            max_tokens: 1024,
+            max_tokens: 2048,
             system: systemPrompt,
             messages: messages
                 .filter(m => m.role === 'user' || m.role === 'assistant')
@@ -139,7 +139,13 @@ const PROVIDER_CONFIGS = {
                     role: m.role === 'assistant' ? 'model' : 'user',
                     parts: [{ text: m.content }],
                 })),
-            generationConfig: { maxOutputTokens: 1024 },
+            generationConfig: {
+                maxOutputTokens: 2048,
+                // Disable extended thinking — the model burns thinking tokens against the
+                // output budget, causing truncation. The system prompt already constrains
+                // responses to 2-3 sentences; thinking adds latency with no quality gain here.
+                thinkingConfig: { thinkingBudget: 0 },
+            },
         }),
         buildHeaders: () => ({}),
         // With alt=sse, each event is: data: <json>\n\n
