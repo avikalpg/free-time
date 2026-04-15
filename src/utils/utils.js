@@ -70,6 +70,8 @@ export function runScheduleSimulation(text) {
         const multiplier = period === 'day' ? 7 : period === 'month' ? 7 / 30 : 1;
         const hoursPerWeek = hours * multiplier;
         if (isNaN(hoursPerWeek) || hoursPerWeek < 0) { parseError = `Invalid hours for "${name}"`; break; }
+        // Skip "free" or "free time" entries — those are outputs, not inputs
+        if (/^free(\s*time)?$/i.test(name)) continue;
         activities.push({ name, hoursPerWeek: Math.round(10 * hoursPerWeek) / 10 });
     }
 
