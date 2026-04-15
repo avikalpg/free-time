@@ -47,6 +47,46 @@ export const validateHours = (activity) => {
  * @param {number} n number of words you want to extract
  * @returns n-word long prefix substring from str
  */
+/**
+ * Parse a [SIMULATE: ...] tag from an AI response and compute free hours.
+ * Format: [SIMULATE: Activity1=Xh/week, Activity2=Yh/day, ...]
+ * Returns null if no valid SIMULATE tag found, or a result object.
+ */
+export function runScheduleSimulation(text) {
+    const match = text.match(/\[SIMULATE:\s*([^\]]+)\]/i);
+    if (!match) return null;
+
+    const entries = match[1].split(',').map(s => s.trim()).filter(Boolean);
+    const activities = [];
+    let parseError = null;
+
+    for (const entry of entries) {
+        // Match "Activity Name = Xh/week" or "Activity Name = Xh/day"
+        const m = entry.match(/^(.+?)\s*=\s*([\d.]+)\s*h\s*(?:\/\s*(week|day|month))?$/i);
+        if (!m) { parseError = `Could not parse: "${entry}"`; break; }
+        const name = m[1].trim();
+        const hours = parseFloat(m[2]);
+        const period = (m[3] || 'week').toLowerCase();
+        const multiplier = period === 'day' ? 7 : period === 'month' ? 7 / 30 : 1;
+        const hoursPerWeek = hours * multiplier;
+        if (isNaN(hoursPerWeek) || hoursPerWeek < 0) { parseError = `Invalid hours for "${name}"`; break; }
+        activities.push({ name, hoursPerWeek: Math.round(10 * hoursPerWeek) / 10 });
+    }
+
+    if (parseError) return { error: parseError, rawTag: match[0] };
+
+    const totalUsed = activities.reduce((sum, a) => sum + a.hoursPerWeek, 0);
+    const freeHours = Math.round(10 * (168 - totalUsed)) / 10;
+
+    return {
+        rawTag: match[0],
+        activities,
+        totalUsed: Math.round(10 * totalUsed) / 10,
+        freeHours,
+        summary: `Simulation result: ${activities.map(a => `${a.name} (${a.hoursPerWeek}h/week)`).join(', ')} → ${freeHours}h/week free (${totalUsed}h/week used out of 168).`,
+    };
+}
+
 export function getFirstNWords(str, n) {
     if (typeof str !== 'string' || str.trim() === "") {
         return ""; // Or handle invalid input as needed (e.g., throw an error)
