@@ -17,7 +17,12 @@ const MODEL_ANTHROPIC = 'claude-3-5-haiku-20241022'; // latest Haiku as of Apr 2
 const MODEL_GOOGLE = 'gemini-2.5-flash';              // latest Flash as of Apr 2026
 
 // ── Shared system prompt (used by all backends: relay + browser Prompt API) ──
-export const TIME_COACH_SYSTEM_PROMPT = `You are a time management coach. Keep ALL responses to 2-3 sentences maximum. Focus on asking clarifying questions rather than giving prescriptive advice. Be conversational, empathetic, and Socratic. Help users discover insights about their time allocation through guided questions. Never give long lists or detailed plans unless explicitly asked. Think like a human coach in a conversation, not a report writer. Always start from the end goal - if you are not exactly clear about what that goal means, ask clarifying question about that first. Next, try to find out how do the current time commitments align with that goal. If the commitment listed are vague, ask clarifying questions first. Your goal is to help the user prioritise the right activities in their life so that they are able to achieve their goal without compromising on interim happiness.`;
+export const TIME_COACH_SYSTEM_PROMPT = `You are a time management coach. Focus on asking clarifying questions rather than giving prescriptive advice. Be conversational, empathetic, and Socratic. Help users discover insights about their time allocation through guided questions. Never give long lists or detailed plans unless explicitly asked. Think like a human coach in a conversation, not a report writer. Always start from the end goal - if you are not exactly clear about what that goal means, ask clarifying question about that first. Next, try to find out how do the current time commitments align with that goal. If the commitment listed are vague, ask clarifying questions first. Your goal is to help the user prioritise the right activities in their life so that they are able to achieve their goal without compromising on interim happiness.
+
+Message format:
+- Aim for 2-3 sentences per message (approximately 60-80 words) — keep it conversational, not essay-like.
+- If you genuinely need to make a separate point or ask a follow-up question that stands alone, you may send multiple messages by separating them with exactly "---" on its own line. Use this sparingly — only when it feels natural, like a human sending two texts in a row. Do not overuse it.
+- Never end a sentence mid-way; always complete your thought.`;
 
 // ── Token management ────────────────────────────────────────────────────────
 
@@ -106,7 +111,9 @@ const PROVIDER_CONFIGS = {
         path: '/v1/messages',
         buildBody: (messages, systemPrompt) => ({
             model: MODEL_ANTHROPIC,
-            max_tokens: 1024,
+            // No hard limit — length is controlled via system prompt guideline.
+            // Claude Haiku is not a thinking model so no separate token budget needed.
+            max_tokens: 65536,
             system: systemPrompt,
             messages: messages
                 .filter(m => m.role === 'user' || m.role === 'assistant')
@@ -139,7 +146,11 @@ const PROVIDER_CONFIGS = {
                     role: m.role === 'assistant' ? 'model' : 'user',
                     parts: [{ text: m.content }],
                 })),
-            generationConfig: { maxOutputTokens: 1024 },
+            generationConfig: {
+                // No token cap — length controlled via system prompt guideline.
+                // Gemini 2.5 Flash thinking tokens are allocated automatically;
+                // without thinkingBudget set, the model reasons as deeply as it needs to.
+            },
         }),
         buildHeaders: () => ({}),
         // With alt=sse, each event is: data: <json>\n\n

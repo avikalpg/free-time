@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, View, ScrollView } from "react-native";
+import { StyleSheet, View, ScrollView, Animated } from "react-native";
 import Markdown from "react-native-markdown-renderer";
 import { Button, Text, TextInput, useTheme, IconButton, Menu, Divider } from 'react-native-paper';
 import { calculateRemainingTime, getDisplayHours, validateHours } from "./utils/utils";
@@ -22,6 +22,43 @@ const SYSTEM_PROMPT_CONTENT = TIME_COACH_SYSTEM_PROMPT;
 
 const INTRO_MESSAGE = "Do you know, we have 168 hours in a week? Most full time jobs demand only 40-48 hours of work in a week. This means that we have almost 3-times as much time in our week as we devote to our full-time jobs.\n\nThe purpose of this tool is gaining self-awareness about the amount of free time you have in your week.";
 const OPENING_QUESTION = "What is the one thing you want to achieve in the next 1 year?";
+
+// ── Typing indicator — animated dots shown while AI is thinking ───────────────
+function TypingIndicator() {
+    const dot1 = React.useRef(new Animated.Value(0)).current;
+    const dot2 = React.useRef(new Animated.Value(0)).current;
+    const dot3 = React.useRef(new Animated.Value(0)).current;
+
+    React.useEffect(() => {
+        const pulse = (dot, delay) => Animated.loop(
+            Animated.sequence([
+                Animated.delay(delay),
+                Animated.timing(dot, { toValue: 1, duration: 300, useNativeDriver: true }),
+                Animated.timing(dot, { toValue: 0, duration: 300, useNativeDriver: true }),
+                Animated.delay(600),
+            ])
+        ).start();
+        pulse(dot1, 0);
+        pulse(dot2, 200);
+        pulse(dot3, 400);
+        return () => { dot1.stopAnimation(); dot2.stopAnimation(); dot3.stopAnimation(); };
+    }, []);
+
+    const dotStyle = (anim) => ({
+        width: 7, height: 7, borderRadius: 4,
+        backgroundColor: '#888', marginHorizontal: 2,
+        opacity: anim,
+        transform: [{ translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [0, -4] }) }],
+    });
+
+    return (
+        <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 4 }}>
+            <Animated.View style={dotStyle(dot1)} />
+            <Animated.View style={dotStyle(dot2)} />
+            <Animated.View style={dotStyle(dot3)} />
+        </View>
+    );
+}
 
 // ── Shared API key setup panel (used in both uninitialized + chat views) ─────
 function ApiKeySetupPanel({
@@ -327,7 +364,22 @@ export function TimeUtilizationSuggestions(props) {
                     });
                     setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
                 },
-                () => setLoadingSuggestions(false),
+                () => {
+                    // Split on --- delimiter to render multi-message responses
+                    setChatHistory(prev => {
+                        const last = prev[prev.length - 1];
+                        if (!last || last.role !== 'ai') return prev;
+                        const parts = last.content
+                            .split(/\n---\n/)
+                            .map(p => p.trim())
+                            .filter(p => p.length > 0);
+                        if (parts.length <= 1) return prev;
+                        // Replace last bubble with multiple bubbles
+                        const rest = prev.slice(0, -1);
+                        return [...rest, ...parts.map(p => ({ role: 'ai', content: p }))];
+                    });
+                    setLoadingSuggestions(false);
+                },
                 (err) => { setAiError(err); setLoadingSuggestions(false); }
             );
         } else {
@@ -536,9 +588,12 @@ export function TimeUtilizationSuggestions(props) {
                                 {message.role === 'user' ? 'You' : 'AI Coach'}
                             </Text>
                         )}
-                        <Text style={message.role === 'intro' ? styles.introText : styles.messageText}>
-                            {message.content || '...'}
-                        </Text>
+                        {message.role === 'ai' && !message.content
+                            ? <TypingIndicator />
+                            : <Text style={message.role === 'intro' ? styles.introText : styles.messageText}>
+                                {message.content}
+                              </Text>
+                        }
                     </View>
                 ))}
             </ScrollView>
