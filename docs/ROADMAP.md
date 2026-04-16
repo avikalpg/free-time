@@ -34,27 +34,42 @@ _Goal: fix the core AI coaching experience so it's good enough to post on HN and
 
 _Goal: turn a one-off coaching session into a structured planning tool. Based on Avi's "Goal tracking" spreadsheet model._
 
-### 2.1 Goal Decomposition Tool
+### 2.1 Goal Tracking Data Model
 
-The AI coach gets a new tool to break a high-level goal into estimated weekly time commitments.
+Based on Avi's personal goal tracking spreadsheet, the hierarchy is:
 
-**Mental model (from Avi's Goal tracking sheet):**
-- A goal has a **target date** and **required weekly hours**
-- Goals decompose into **habits** (recurring weekly actions) and **milestones** (one-time deliverables)
-- Each habit has: name, hours/week, why it matters, current status (not started / in progress / done)
-- The coach runs a simulation: "your goal requires ~Xh/week. You currently have Yh free. Gap: Z hours."
+```
+Annual Goal
+  └── Why achieve it (motivation)
+  └── Quarterly Goals (Q1–Q4)
+        └── Monthly Goals
+              └── Weekly Goals
+                    └── Daily Micro Goals
+```
+
+Each level tracks: % complete, friction encountered, rewards on completion, reflection notes.
+
+**Daily Routine** is a separate axis:
+- Each activity has: name, category (Health & Wellness / Work / Learning & Growth / Personal Care / Leisure / Commute / Distractions), priority (H/M/L), focus status (Most Focused / Focused / Not Focused), and hours per day-of-week
+- Dashboard summarises: time by category, focus hours (most focused / focused / not focused), reading speed, screen time
+
+This is the data model the AI coach should eventually understand and query.
+
+### 2.2 Goal Decomposition Tool
+
+The AI coach breaks a high-level goal into estimated weekly time commitments and checks feasibility against the user's schedule.
 
 **AI tool convention (same pattern as SIMULATE):**
 ```
-[GOAL_DECOMPOSE: goal="Launch a funded startup", target="12 months"]
+[GOAL_DECOMPOSE: goal="Launch a funded startup", target="12 months", hours_available=38]
 ```
-Returns: estimated hours/week needed, suggested habit breakdown, gap vs current free time.
+Returns: estimated hours/week needed (from benchmarks or model reasoning), suggested habit categories and hours, feasibility assessment.
 
-**New UI component:** `GoalCard` — shows goal, target date, required hours, habits list, progress. Stored in localStorage initially.
+**New UI component:** `GoalCard` — shows goal, target date, required hours, habits list, progress %. Stored in localStorage initially.
 
-### 2.2 Weekly Plan View
+### 2.3 Weekly Plan View
 
-After the AI coach has enough context, it can help the user build a **structured weekly plan** — a list of habits with assigned hours. Stored locally, reviewable at any time.
+After the AI coach has enough context, it helps the user build a structured weekly plan — activities with category, hours, and focus level. Matches the Daily Routine structure in Avi's spreadsheet. Stored locally, reviewable at any time.
 
 ---
 
