@@ -121,8 +121,9 @@ const PROVIDER_CONFIGS = {
             max_tokens: 65536,
             system: systemPrompt,
             messages: messages
-                .filter(m => m.role === 'user' || m.role === 'assistant')
-                .map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content })),
+                // 'ai' is the internal role name; map to 'assistant' for Anthropic API
+                .filter(m => m.role === 'user' || m.role === 'assistant' || m.role === 'ai')
+                .map(m => ({ role: (m.role === 'assistant' || m.role === 'ai') ? 'assistant' : 'user', content: m.content })),
             stream: true,
         }),
         buildHeaders: () => ({
@@ -146,9 +147,10 @@ const PROVIDER_CONFIGS = {
         buildBody: (messages, systemPrompt) => ({
             system_instruction: { parts: [{ text: systemPrompt }] },
             contents: messages
-                .filter(m => m.role === 'user' || m.role === 'assistant')
+                // 'ai' is the internal role name; map to 'model' for Gemini API
+                .filter(m => m.role === 'user' || m.role === 'assistant' || m.role === 'ai')
                 .map(m => ({
-                    role: m.role === 'assistant' ? 'model' : 'user',
+                    role: (m.role === 'assistant' || m.role === 'ai') ? 'model' : 'user',
                     parts: [{ text: m.content }],
                 })),
             generationConfig: {
