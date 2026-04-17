@@ -53,6 +53,8 @@ export const validateHours = (activity) => {
  * Returns null if no valid SIMULATE tag found, or a result object.
  */
 export function runScheduleSimulation(text) {
+    // Guard: text must be a non-empty string
+    if (typeof text !== 'string' || !text) return null;
     // Only match when the tag is on its own line to avoid false positives on
     // explanatory text that mentions the tag format (e.g. in the system prompt)
     const match = text.match(/^\s*\[SIMULATE:\s*([^\]]+)\]\s*$/im);
@@ -65,7 +67,8 @@ export function runScheduleSimulation(text) {
 
     for (const entry of entries) {
         // Match "Activity Name = Xh/week" or "Activity Name = Xh/day"
-        const m = entry.match(/^(.+?)\s*=\s*([\d.]+)\s*h\s*(?:\/\s*(week|day|month))?$/i);
+        // Use strict numeric pattern (\d+(?:\.\d+)?) to reject malformed values like 1..5 or 1.2.3
+        const m = entry.match(/^(.+?)\s*=\s*(\d+(?:\.\d+)?)\s*h\s*(?:\/\s*(week|day|month))?$/i);
         if (!m) { parseError = `Could not parse: "${entry}"`; break; }
         const name = m[1].trim();
         const hours = parseFloat(m[2]);
@@ -88,7 +91,7 @@ export function runScheduleSimulation(text) {
         activities,
         totalUsed: Math.round(10 * totalUsed) / 10,
         freeHours,
-        summary: `Simulation result: ${activities.map(a => `${a.name} (${a.hoursPerWeek}h/week)`).join(', ')} → ${freeHours}h/week free (${totalUsed}h/week used out of 168).`,
+        summary: `Simulation result: ${activities.map(a => `${a.name} (${a.hoursPerWeek}h/week)`).join(', ')} → ${freeHours}h/week free (${Math.round(10 * totalUsed) / 10}h/week used out of 168).`,
     };
 }
 
