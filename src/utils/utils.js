@@ -3,6 +3,18 @@ export const randomColor = () =>
 
 export const totalHoursInWeek = 168;
 
+// Cadence multipliers — mirrors ActivityPeriods in EnumActivityPeriod.js
+// Centralised here so runScheduleSimulation uses the same logic as the calculator.
+export const SIMULATE_CADENCE_MULTIPLIERS = {
+    'day':      7,          // per day  → ×7
+    'workday':  5,          // per workday → ×5
+    'working':  5,          // alias for workday
+    'holiday':  2,          // per holiday/weekend → ×2
+    'weekend':  2,          // alias for holiday
+    'week':     1,          // per week → ×1 (default)
+    'month':    7 * 12 / 365, // per month → same as ActivityPeriods.MONTH
+};
+
 /**
  * Evaluates whether an activity has valid hours & period of activity
  * @param {{name: string, hours: number, duration: {text: string, multiplier: number}, color: string, errorText: null}[]} validActivities
@@ -68,12 +80,12 @@ export function runScheduleSimulation(text) {
     for (const entry of entries) {
         // Match "Activity Name = Xh/week" or "Activity Name = Xh/day"
         // Use strict numeric pattern (\d+(?:\.\d+)?) to reject malformed values like 1..5 or 1.2.3
-        const m = entry.match(/^(.+?)\s*=\s*(\d+(?:\.\d+)?)\s*h\s*(?:\/\s*(week|day|month))?$/i);
+        const m = entry.match(/^(.+?)\s*=\s*(\d+(?:\.\d+)?)\s*h\s*(?:\/\s*(workday|working\s*day|weekend|holiday|day|week|month))?$/i);
         if (!m) { parseError = `Could not parse: "${entry}"`; break; }
         const name = m[1].trim();
         const hours = parseFloat(m[2]);
-        const period = (m[3] || 'week').toLowerCase();
-        const multiplier = period === 'day' ? 7 : period === 'month' ? 7 / 30 : 1;
+        const period = (m[3] || 'week').toLowerCase().replace(/\s+/g, '');
+        const multiplier = SIMULATE_CADENCE_MULTIPLIERS[period] ?? 1;
         const hoursPerWeek = hours * multiplier;
         if (isNaN(hoursPerWeek) || hoursPerWeek < 0) { parseError = `Invalid hours for "${name}"`; break; }
         // Skip "free" or "free time" entries — those are outputs, not inputs

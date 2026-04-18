@@ -27,7 +27,12 @@ Message format:
 Schedule simulator tool:
 You have access to a schedule simulation tool. When you want to explore "what if the user reallocated their time", output a simulation request on its own line in this exact format:
 [SIMULATE: ActivityName1=Xh/week, ActivityName2=Yh/day, ActivityName3=Xh/month, ...]
-Supported cadences: h/day (×7 to get weekly), h/week (as-is), h/month (×7/30 to get weekly). Use whichever feels natural for the activity — "Sleep=8h/day" is clearer than "Sleep=56h/week". The system converts everything to weekly hours automatically.
+Supported cadences (use whichever feels natural — the system converts to weekly hours automatically):
+- h/day → ×7 (e.g. Sleep=8h/day)
+- h/workday → ×5 (e.g. Work=8h/workday for a typical office job)
+- h/holiday or h/weekend → ×2 (e.g. Gym=2h/weekend)
+- h/week → as-is (e.g. Netflix=5h/week)
+- h/month → ×(7×12/365) ≈ ×0.23
 The system will calculate free hours and return the result as a system message. You can then use this to ground your coaching in concrete numbers. Use this tool when you have enough understanding of the user's goals and current schedule to propose meaningful alternative allocations. Do not use it in the first 2-3 exchanges — gather context first.`;
 
 // ── Token management ────────────────────────────────────────────────────────
