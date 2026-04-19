@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="%LANG_ISO_CODE%">
+  <head>
+    <meta charset="utf-8" />
+    <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1.00001, viewport-fit=cover"
+    />
+    <title>%WEB_TITLE%</title>
+
+    <!-- Google AdSense — placed in static HTML so Google's crawler can verify publisher ownership -->
+    <script
+      async
+      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9543408536781579"
+      crossorigin="anonymous"
+    ></script>
+
+    <style>
+      html,
+      body,
+      #root {
+        width: 100%;
+        -webkit-overflow-scrolling: touch;
+        margin: 0px;
+        padding: 0px;
+        min-height: 100%;
+      }
+      #root {
+        flex-shrink: 0;
+        flex-basis: auto;
+        flex-grow: 1;
+        display: flex;
+        flex: 1;
+      }
+      html {
+        scroll-behavior: smooth;
+        -webkit-text-size-adjust: 100%;
+        height: calc(100% + env(safe-area-inset-top));
+      }
+      body {
+        display: flex;
+        overflow-y: auto;
+        overscroll-behavior-y: none;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        -ms-overflow-style: scrollbar;
+      }
+    </style>
+  </head>
+
+  <body>
+    <noscript>
+      <form
+        action=""
+        style="background-color:#fff;position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999"
+      >
+        <div style="font-size:18px;font-family:Helvetica,sans-serif;line-height:24px;margin:10%;width:80%">
+          <p>Oh no! It looks like JavaScript is not enabled in your browser.</p>
+          <p style="margin:20px 0">
+            <button
+              type="submit"
+              style="background-color:#4630eb;border-radius:100px;border:none;box-shadow:none;color:#fff;cursor:pointer;font-weight:bold;line-height:20px;padding:6px 16px"
+            >Reload</button>
+          </p>
+        </div>
+      </form>
+    </noscript>
+    <!-- The root element for your Expo app. -->
+    <div id="root"></div>
+  </body>
+</html>
