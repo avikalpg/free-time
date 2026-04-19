@@ -1,0 +1,8 @@
+{
+  "background_color": "#7de8ab",
+  "display": "standalone",
+  "lang": "en",
+  "name": "Free time in a week",
+  "short_name": "Free time in a week",
+  "start_url": "/?utm_source=web_app_manifest"
+}
