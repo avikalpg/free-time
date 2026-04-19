@@ -9,6 +9,19 @@
     />
     <title>%WEB_TITLE%</title>
 
+    <!-- GitHub Pages SPA deep-link restore.
+         Works with web/404.html: if a direct URL was redirected via ?p=,
+         restore the original path before React/NavigationContainer mounts. -->
+    <script>
+      (function() {
+        var p = window.location.search.match(/[?&]p=([^&]+)/);
+        if (p) {
+          var decoded = decodeURIComponent(p[1]);
+          window.history.replaceState(null, null, decoded);
+        }
+      })();
+    </script>
+
     <!-- Google AdSense — placed in static HTML so Google's crawler can verify publisher ownership -->
     <script
       async
