@@ -2,7 +2,7 @@ import React from "react";
 import { StyleSheet, View, ScrollView, Animated } from "react-native";
 import Markdown from "react-native-markdown-renderer";
 import { Button, Text, TextInput, useTheme, IconButton, Menu, Divider } from 'react-native-paper';
-import { calculateRemainingTime, getDisplayHours, validateHours } from "./utils/utils";
+import { calculateRemainingTime, getDisplayHours, validateHours, runScheduleSimulation } from "./utils/utils";
 import {
     storeApiKey, listStoredProviders, deleteApiKey,
     getSelectedProvider, setSelectedProvider, sendRelayMessage,
@@ -158,6 +158,13 @@ export function TimeUtilizationSuggestions(props) {
         messageLabel: { fontSize: 11, fontWeight: '600', marginBottom: 4, color: theme.colors.primary },
         messageText: { fontSize: 14, color: '#000000' },
         introText: { fontSize: 14, color: '#000000', lineHeight: 20 },
+        simResultContainer: {
+            alignSelf: 'stretch', marginVertical: 4, marginHorizontal: 8,
+            backgroundColor: '#F0F4FF', borderRadius: 8, padding: 10,
+            borderLeftWidth: 3, borderLeftColor: '#6366F1',
+        },
+        simResultLabel: { fontSize: 11, fontWeight: '700', color: '#6366F1', marginBottom: 4 },
+        simResultText: { fontSize: 13, color: '#374151', lineHeight: 18 },
         inputContainer: {
             flexDirection: 'row', alignItems: 'center',
             paddingHorizontal: 12, paddingVertical: 12,
@@ -310,6 +317,36 @@ export function TimeUtilizationSuggestions(props) {
     };
 
     // ── Message sending ───────────────────────────────────────────────────────
+    // Post-process the last AI bubble: handle [SIMULATE:] tags and --- multi-message splits.
+    // Called by both relay onDone and browser Prompt API completion.
+    const processAiResponse = React.useCallback(() => {
+        setChatHistory(prev => {
+            const last = prev[prev.length - 1];
+            if (!last || last.role !== 'ai') return prev;
+
+            // Check for [SIMULATE:] tool call (must be on its own line)
+            const simResult = runScheduleSimulation(last.content);
+            if (simResult) {
+                const visibleContent = last.content.replace(simResult.rawTag, '').replace(/\n{3,}/g, '\n\n').trim();
+                const rest = prev.slice(0, -1);
+                const bubbles = visibleContent ? [{ role: 'ai', content: visibleContent }] : [];
+                const systemMsg = {
+                    role: 'system-sim',
+                    content: simResult.error
+                        ? `[Simulation error: ${simResult.error}]`
+                        : `[${simResult.summary}]`,
+                };
+                return [...rest, ...bubbles, systemMsg];
+            }
+
+            // Handle --- multi-message split
+            const parts = last.content.split(/\n---\n/).map(p => p.trim()).filter(p => p.length > 0);
+            if (parts.length <= 1) return prev;
+            const rest = prev.slice(0, -1);
+            return [...rest, ...parts.map(p => ({ role: 'ai', content: p }))];
+        });
+    }, []);
+
     const sendMessage = async () => {
         if (!followUpMessage.trim() || loadingSuggestions) return;
 
@@ -335,11 +372,16 @@ export function TimeUtilizationSuggestions(props) {
 
         if (selectedProvider && storedProviders.includes(selectedProvider)) {
             // Use relay (Claude or Gemini)
-            const messagesForRelay = newHistory.filter(m => m.role === 'user' || m.role === 'ai');
+            // Include system-sim messages so the model sees simulation results in context
+            const messagesForRelay = newHistory.filter(m => m.role === 'user' || m.role === 'ai' || m.role === 'system-sim');
             // Include schedule context in the first user message (not index-based — chat
             // history always starts with intro/AI messages so index 0 is never a user msg)
             let addedScheduleContext = false;
             const contextualMessages = messagesForRelay.map((m) => {
+                if (m.role === 'system-sim') {
+                    // Simulation results appear as user-role messages so the model can react
+                    return { role: 'user', content: m.content };
+                }
                 if (m.role === 'user' && !addedScheduleContext) {
                     addedScheduleContext = true;
                     return {
@@ -364,22 +406,7 @@ export function TimeUtilizationSuggestions(props) {
                     });
                     setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
                 },
-                () => {
-                    // Split on --- delimiter to render multi-message responses
-                    setChatHistory(prev => {
-                        const last = prev[prev.length - 1];
-                        if (!last || last.role !== 'ai') return prev;
-                        const parts = last.content
-                            .split(/\n---\n/)
-                            .map(p => p.trim())
-                            .filter(p => p.length > 0);
-                        if (parts.length <= 1) return prev;
-                        // Replace last bubble with multiple bubbles
-                        const rest = prev.slice(0, -1);
-                        return [...rest, ...parts.map(p => ({ role: 'ai', content: p }))];
-                    });
-                    setLoadingSuggestions(false);
-                },
+                () => { processAiResponse(); setLoadingSuggestions(false); },
                 (err) => { setAiError(err); setLoadingSuggestions(false); }
             );
         } else {
@@ -400,6 +427,8 @@ export function TimeUtilizationSuggestions(props) {
                         return updated;
                     });
                 }
+                // Apply same post-processing as relay path (SIMULATE tags + --- splitting)
+                processAiResponse();
                 setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
                 setLoadingSuggestions(false);
             } catch (err) {
@@ -574,28 +603,38 @@ export function TimeUtilizationSuggestions(props) {
                 style={styles.chatContainer}
                 onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
             >
-                {chatHistory.map((message, index) => (
-                    <View
-                        key={index}
-                        style={[
-                            message.role === 'intro' ? styles.introMessage : styles.messageContainer,
-                            message.role === 'user' ? styles.userMessage
-                                : message.role === 'ai' ? styles.aiMessage : null,
-                        ]}
-                    >
-                        {message.role !== 'intro' && (
-                            <Text style={styles.messageLabel}>
-                                {message.role === 'user' ? 'You' : 'AI Coach'}
-                            </Text>
-                        )}
-                        {message.role === 'ai' && !message.content
-                            ? <TypingIndicator />
-                            : <Text style={message.role === 'intro' ? styles.introText : styles.messageText}>
-                                {message.content}
-                              </Text>
-                        }
-                    </View>
-                ))}
+                {chatHistory.map((message, index) => {
+                    if (message.role === 'system-sim') {
+                        return (
+                            <View key={index} style={styles.simResultContainer}>
+                                <Text style={styles.simResultLabel}>🧮 Schedule Simulation</Text>
+                                <Text style={styles.simResultText}>{message.content}</Text>
+                            </View>
+                        );
+                    }
+                    return (
+                        <View
+                            key={index}
+                            style={[
+                                message.role === 'intro' ? styles.introMessage : styles.messageContainer,
+                                message.role === 'user' ? styles.userMessage
+                                    : message.role === 'ai' ? styles.aiMessage : null,
+                            ]}
+                        >
+                            {message.role !== 'intro' && (
+                                <Text style={styles.messageLabel}>
+                                    {message.role === 'user' ? 'You' : 'AI Coach'}
+                                </Text>
+                            )}
+                            {message.role === 'ai' && !message.content
+                                ? <TypingIndicator />
+                                : <Text style={message.role === 'intro' ? styles.introText : styles.messageText}>
+                                    {message.content}
+                                  </Text>
+                            }
+                        </View>
+                    );
+                })}
             </ScrollView>
 
             {/* Input */}

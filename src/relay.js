@@ -22,7 +22,18 @@ export const TIME_COACH_SYSTEM_PROMPT = `You are a time management coach. Focus 
 Message format:
 - Aim for 2-3 sentences per message (approximately 60-80 words) — keep it conversational, not essay-like.
 - If you genuinely need to make a separate point or ask a follow-up question that stands alone, you may send multiple messages by separating them with exactly "---" on its own line. Use this sparingly — only when it feels natural, like a human sending two texts in a row. Do not overuse it.
-- Never end a sentence mid-way; always complete your thought.`;
+- Never end a sentence mid-way; always complete your thought.
+
+Schedule simulator tool:
+You have access to a schedule simulation tool. When you want to explore "what if the user reallocated their time", output a simulation request on its own line in this exact format:
+[SIMULATE: ActivityName1=Xh/week, ActivityName2=Yh/day, ActivityName3=Xh/month, ...]
+Supported cadences (use whichever feels natural — the system converts to weekly hours automatically):
+- h/day → ×7 (e.g. Sleep=8h/day)
+- h/workday → ×5 (e.g. Work=8h/workday for a typical office job)
+- h/holiday or h/weekend → ×2 (e.g. Gym=2h/weekend)
+- h/week → as-is (e.g. Netflix=5h/week)
+- h/month → ×(7×12/365) ≈ ×0.23
+The system will calculate free hours and return the result as a system message. You can then use this to ground your coaching in concrete numbers. Use this tool when you have enough understanding of the user's goals and current schedule to propose meaningful alternative allocations. Do not use it in the first 2-3 exchanges — gather context first.`;
 
 // ── Token management ────────────────────────────────────────────────────────
 
@@ -111,13 +122,13 @@ const PROVIDER_CONFIGS = {
         path: '/v1/messages',
         buildBody: (messages, systemPrompt) => ({
             model: MODEL_ANTHROPIC,
-            // No hard limit — length is controlled via system prompt guideline.
-            // Claude Haiku is not a thinking model so no separate token budget needed.
+            // No hard limit — length controlled via system prompt guideline.
             max_tokens: 65536,
             system: systemPrompt,
             messages: messages
-                .filter(m => m.role === 'user' || m.role === 'assistant')
-                .map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content })),
+                // 'ai' is the internal role name; map to 'assistant' for Anthropic API
+                .filter(m => m.role === 'user' || m.role === 'assistant' || m.role === 'ai')
+                .map(m => ({ role: (m.role === 'assistant' || m.role === 'ai') ? 'assistant' : 'user', content: m.content })),
             stream: true,
         }),
         buildHeaders: () => ({
@@ -141,9 +152,10 @@ const PROVIDER_CONFIGS = {
         buildBody: (messages, systemPrompt) => ({
             system_instruction: { parts: [{ text: systemPrompt }] },
             contents: messages
-                .filter(m => m.role === 'user' || m.role === 'assistant')
+                // 'ai' is the internal role name; map to 'model' for Gemini API
+                .filter(m => m.role === 'user' || m.role === 'assistant' || m.role === 'ai')
                 .map(m => ({
-                    role: m.role === 'assistant' ? 'model' : 'user',
+                    role: (m.role === 'assistant' || m.role === 'ai') ? 'model' : 'user',
                     parts: [{ text: m.content }],
                 })),
             generationConfig: {
