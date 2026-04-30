@@ -9,6 +9,7 @@ export const SIMULATE_CADENCE_MULTIPLIERS = {
     'day':      7,          // per day  → ×7
     'workday':  5,          // per workday → ×5
     'working':  5,          // alias for workday
+    'workingday': 5,        // normalized form of 'working day'
     'holiday':  2,          // per holiday/weekend → ×2
     'weekend':  2,          // alias for holiday
     'week':     1,          // per week → ×1 (default)
@@ -94,6 +95,7 @@ export function runScheduleSimulation(text) {
     }
 
     if (parseError) return { error: parseError, rawTag: match[0] };
+    if (activities.length === 0) return { error: 'All entries were skipped (only Free/Free Time entries found)', rawTag: match[0] };
 
     const totalUsed = activities.reduce((sum, a) => sum + a.hoursPerWeek, 0);
     const freeHours = Math.round(10 * (168 - totalUsed)) / 10;

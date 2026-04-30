@@ -327,9 +327,12 @@ export function TimeUtilizationSuggestions(props) {
             // Check for [SIMULATE:] tool call (must be on its own line)
             const simResult = runScheduleSimulation(last.content);
             if (simResult) {
-                const visibleContent = last.content.replace(simResult.rawTag, '').replace(/\n{3,}/g, '\n\n').trim();
+                const stripped = last.content.replace(simResult.rawTag, '').replace(/\n{3,}/g, '\n\n').trim();
                 const rest = prev.slice(0, -1);
-                const bubbles = visibleContent ? [{ role: 'ai', content: visibleContent }] : [];
+                // Apply --- multi-message split to visible content before the sim card
+                const bubbles = stripped
+                    ? stripped.split(/\n---\n/).map(p => p.trim()).filter(p => p.length > 0).map(p => ({ role: 'ai', content: p }))
+                    : [];
                 const systemMsg = {
                     role: 'system-sim',
                     content: simResult.error
@@ -626,7 +629,7 @@ export function TimeUtilizationSuggestions(props) {
                                     {message.role === 'user' ? 'You' : 'AI Coach'}
                                 </Text>
                             )}
-                            {message.role === 'ai' && !message.content
+                            {message.role === 'ai' && !message.content && loadingSuggestions && index === chatHistory.length - 1
                                 ? <TypingIndicator />
                                 : <Text style={message.role === 'intro' ? styles.introText : styles.messageText}>
                                     {message.content}
