@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="robots" content="noindex">
+  <title>Free time in a week</title>
+  <script>
+    // GitHub Pages SPA redirect trick.
+    // Encodes the full path+query+hash into a query param on the root URL,
+    // so GitHub Pages serves index.html instead of a 404.
+    // The decode script in index.html restores the original URL.
+    var l = window.location;
+    l.replace(
+      l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+      '/?p=' + encodeURIComponent(l.pathname + l.search + l.hash)
+    );
+  </script>
+</head>
+<body>
+  <noscript>
+    <p>This page requires JavaScript to load correctly.
+       Please enable JavaScript or <a href="/">go to the homepage</a>.</p>
+  </noscript>
+</body>
+</html>
