@@ -1,51 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!--
+    Only the homepage is listed until the Expo SDK upgrade enables the
+    NavigationContainer linking config. Without that, all deep-link URLs
+    (e.g. /philosophy/origin) render the Home screen regardless of the
+    address bar value, causing duplicate content in Google's index.
+    See: src/pages/philosophy/routes.js (linking config ready, blocked on SDK 49+)
+  -->
   <url>
     <loc>https://myfreetimeinaweek.in/</loc>
-    <lastmod>2026-04-19</lastmod>
+    <lastmod>2026-04-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://myfreetimeinaweek.in/philosophy</loc>
-    <lastmod>2026-04-19</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://myfreetimeinaweek.in/philosophy/origin</loc>
-    <lastmod>2026-04-19</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://myfreetimeinaweek.in/philosophy/focus</loc>
-    <lastmod>2026-04-19</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://myfreetimeinaweek.in/philosophy/buffers</loc>
-    <lastmod>2026-04-19</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://myfreetimeinaweek.in/philosophy/recovery</loc>
-    <lastmod>2026-04-19</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://myfreetimeinaweek.in/philosophy/life-goals</loc>
-    <lastmod>2026-04-19</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://myfreetimeinaweek.in/privacy</loc>
-    <lastmod>2026-04-19</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
   </url>
 </urlset>
