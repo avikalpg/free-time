@@ -16,8 +16,12 @@
       (function() {
         var p = window.location.search.match(/[?&]p=([^&]+)/);
         if (p) {
-          var decoded = decodeURIComponent(p[1]);
-          window.history.replaceState(null, null, decoded);
+          try {
+            var decoded = decodeURIComponent(p[1]);
+            window.history.replaceState(null, null, decoded);
+          } catch (e) {
+            // Malformed percent-encoding — leave URL as-is
+          }
         }
       })();
     </script>
