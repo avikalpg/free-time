@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!--
+    Only the homepage is listed until the Expo SDK upgrade enables the
+    NavigationContainer linking config. Without that, all deep-link URLs
+    (e.g. /philosophy/origin) render the Home screen regardless of the
+    address bar value, causing duplicate content in Google's index.
+    See: src/pages/philosophy/routes.js (linking config ready, blocked on SDK 49+)
+  -->
+  <url>
+    <loc>https://myfreetimeinaweek.in/</loc>
+    <lastmod>2026-04-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>
