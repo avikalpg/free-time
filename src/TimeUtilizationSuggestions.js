@@ -336,8 +336,8 @@ export function TimeUtilizationSuggestions(props) {
                 const systemMsg = {
                     role: 'system-sim',
                     content: simResult.error
-                        ? `[Simulation error: ${simResult.error}]`
-                        : `[${simResult.summary}]`,
+                        ? `Simulation error: ${simResult.error}`
+                        : simResult.summary,
                 };
                 return [...rest, ...bubbles, systemMsg];
             }
@@ -383,7 +383,8 @@ export function TimeUtilizationSuggestions(props) {
             const contextualMessages = messagesForRelay.map((m) => {
                 if (m.role === 'system-sim') {
                     // Simulation results appear as user-role messages so the model can react
-                    return { role: 'user', content: m.content };
+                    // Wrap in [] so the model reads it as system metadata, not a user reply
+                    return { role: 'user', content: `[${m.content}]` };
                 }
                 if (m.role === 'user' && !addedScheduleContext) {
                     addedScheduleContext = true;
