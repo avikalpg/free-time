@@ -19,12 +19,15 @@ _Goal: fix the core AI coaching experience so it's good enough to post on HN and
 
 | # | Feature | Status | PR |
 |---|---------|--------|-----|
-| 1.1 | Fix truncated Gemini responses (thinkingBudget + maxOutputTokens) | ✅ Ready | #42 |
-| 1.2 | Animated typing indicator (bouncing dots during thinking) | ✅ Ready | #42 |
-| 1.3 | Multi-message AI responses via `---` delimiter | ✅ Ready | #42 |
-| 1.4 | Schedule simulator tool (SIMULATE tag → free hours calculation) | ✅ Ready | #43 |
+| 1.1 | Fix truncated Gemini responses (thinkingBudget + maxOutputTokens) | ✅ Merged | #42 |
+| 1.2 | Animated typing indicator (bouncing dots during thinking) | ✅ Merged | #42 |
+| 1.3 | Multi-message AI responses via `---` delimiter | ✅ Merged | #42 |
+| 1.4 | Schedule simulator tool (SIMULATE tag → free hours calculation) | ✅ Merged | #43 |
 | 1.5 | Show HN readiness for byok-relay (startup validation, rate limits, quickstart) | ✅ Merged | relay PR#1 |
-| 1.6 | Goal decomposition tool (see below) | 🔲 Not started | — |
+| 1.6 | SEO foundations (robots.txt, sitemap, 404 SPA redirect, AdSense static tag) | ✅ Merged | #46 #47 |
+| 1.7 | Agentic simulator loop (model auto-chains SIMULATE calls) | 🔲 Not started | — |
+| 1.8 | Expo SDK upgrade (enables deep-link routing, full sitemap) | 🔲 Not started | — |
+| 1.9 | Goal decomposition tool (see Wave 2) | 🔲 Not started | — |
 
 **Wave 1 launch targets:** HackerNews Show HN, Product Hunt
 
