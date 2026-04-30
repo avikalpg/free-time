@@ -1,6 +1,6 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
-import { Caption, Headline } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import { ActivityPie } from "./analytics/ActivityPie";
 import { calculateRemainingTime, getDisplayHours, totalHoursInWeek, validateHours } from "./utils/utils";
 
@@ -17,9 +17,9 @@ export function HighLevelAssessment(props) {
     return (
         <View style={props.style}>
             <View style={styles.totalFreeHoursText}>
-                <Caption>You have</Caption>
-                <Headline>{getDisplayHours(hoursRemaining)} / {totalHoursInWeek}</Headline>
-                <Caption style={{ textAlign: 'center' }}>free hours in<br />your week</Caption>
+                <Text variant="bodySmall">You have</Text>
+                <Text variant="headlineMedium">{getDisplayHours(hoursRemaining)} / {totalHoursInWeek}</Text>
+                <Text variant="bodySmall" style={{ textAlign: 'center' }}>free hours in{"\n"}your week</Text>
             </View>
             <ActivityPie activities={validActivities} totalHoursInWeek={totalHoursInWeek} style={styles.activityPie} >
             </ActivityPie>

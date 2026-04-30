@@ -13,6 +13,18 @@ import { DefaultTheme, DarkTheme } from './src/Theme';
 import Help from './src/pages/Help';
 import { PHILOSOPHY_ROUTES } from './src/pages/philosophy/routes';
 
+const linking = {
+	prefixes: ['https://myfreetimeinaweek.in', 'http://localhost:19006'],
+	config: {
+		screens: {
+			Home: '',
+			Help: 'help',
+			PrivacyPolicy: 'privacy',
+			...Object.fromEntries(PHILOSOPHY_ROUTES.map(({ name, path }) => [name, path])),
+		},
+	},
+};
+
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -31,7 +43,7 @@ export default function App() {
 		// Context is wired into the local state of our main component, so that its values could be propagated throughout the entire application
 		<PreferencesContext.Provider value={preferences}>
 			<PaperProvider theme={theme}>
-				<NavigationContainer theme={theme}>
+				<NavigationContainer theme={theme} linking={linking}>
 					<Helmet>
 						<script
 							async
