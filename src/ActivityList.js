@@ -54,8 +54,8 @@ export const ActivityList = (props) => {
         activityPeriodDropdownText: {
             color: theme.colors.text,
             textAlign: 'left',
-            fontFamily: theme.fonts.regular.fontFamily,
-            fontWeight: theme.fonts.regular.fontWeight,
+            fontFamily: theme.fonts.bodyMedium?.fontFamily,
+            fontWeight: theme.fonts.bodyMedium?.fontWeight,
             fontSize: '16px'
         },
         activityPeriodDropdown: {
